@@ -2,7 +2,6 @@
 # You can delete these comments, but do not change the name of this file
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 
-inventory = ['ladybug', 'test vial', 'garbage bag']
 
 class Human(object):
     def __init__(self, name, health):
@@ -10,12 +9,21 @@ class Human(object):
         self.health = health
 
 
-bandit = Human('Bandit', 100)
+class Player(object):
+    """
+    Creates and instance of Player
+    """
+    def __init__(self, name, health, inventory):
+        self.name = name
+        self.health = health
+        self.inventory = inventory
+
+    def get_inventory(self):
+        print(self.inventory)
 
 
-print('You attack the bandit!')
-bandit.health -= 50
-print(f'The Bandits health is now {bandit.health}')
+player = Player(input('Enter your name'), 100, [])
+print(player.name, player.health, player.inventory)
 
 
 def good_or_bad():
@@ -51,7 +59,7 @@ def scene_one():
             scene_one()
         elif answer == 'open door':
             print('Next Scene')
-            break
+            scene_two()
         elif answer == 'stay here':
             print('You have died. Restart.')
             break
@@ -65,6 +73,14 @@ def scene_one():
         else:
             print('You cannot do that.')
             scene_one()
+
+
+# def scene_two():
+#     print(f'While will you do, brave {hero_name}?')
+#     answer = ''
+#     while (answer == ''):
+#         answer = input('').lower()
+#         if answer == 'attack': 
 
 
 
@@ -94,3 +110,8 @@ def scene_one():
 #     """)
 
 # scene_one()
+
+# print("""
+#     You open the door to a narrow hallway.
+#     You see a large crate to your right and seconds later a Bandit jumps out!
+#     """)
