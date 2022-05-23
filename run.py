@@ -13,10 +13,11 @@ class Player(object):
     """
     Creates and instance of Player
     """
-    def __init__(self, name, health, inventory):
+    def __init__(self, name, health, inventory, equipped):
         self.name = name
         self.health = health
         self.inventory = inventory
+        self.equipped = equipped # Equipped Weapon
 
     def get_inventory(self):
         print(self.inventory)
@@ -24,11 +25,20 @@ class Player(object):
     def update_inventory(self, item):
         self.inventory.append(item)
 
+    def attack(self, target):
+        target.health -= 50
+
+
+bandit = Human('Bandit', 100)
+player = Player('sanct', 100, [], 'hands')
+player.attack(bandit)
+print(bandit.health)
+
 
 def good_or_bad():
     answer = ''
     while answer != 'yes' and answer != 'no':
-        answer = input(f'A simple choice to start with {hero_name}, are you good and true of heart?\nYes/No: ').lower()
+        answer = input(f'A simple choice to start with {player.name}, are you good and true of heart?\nYes/No: ').lower()
         alignment = ''
         if answer == 'yes':
             alignment = 'a stoic Knight, good and true of heart'
@@ -45,26 +55,26 @@ def scene_one():
     answer = ''
     while (answer == ''):
         answer = input('').lower()
-        if answer == 'look around' and 'torch' not in inventory:
+        if answer == 'look around' and 'torch' not in player.inventory:
             print('You see an unlit torch lying on the ground.')
             scene_one()
-        elif answer == 'look around' and 'torch' in inventory:
+        elif answer == 'look around' and 'torch' in player.inventory:
             print('You see the soot from where the torch used to be.')
             scene_one()
         elif answer == 'inventory':
             print('The items in your inventory:')
-            for item in inventory:
+            for item in player.inventory:
                 print(f'- {item}')
             scene_one()
         elif answer == 'open door':
             print('Next Scene')
-            scene_two()
+            break
         elif answer == 'stay here':
             print('You have died. Restart.')
             break
-        elif 'torch' in answer and 'torch' not in inventory:
+        elif 'torch' in answer and 'torch' not in player.inventory:
             print('You pick up the torch.')
-            inventory.append('torch')
+            player.update_inventory('torch')
             scene_one()
         elif answer == 'quit':
             print('The Rose awaits your next attempt.')
@@ -75,7 +85,7 @@ def scene_one():
 
 
 # def scene_two():
-#     print(f'While will you do, brave {hero_name}?')
+#     print(f'While will you do, brave {player.name}?')
 #     answer = ''
 #     while (answer == ''):
 #         answer = input('').lower()
@@ -91,13 +101,12 @@ def scene_one():
 # You will face many challenges along the way, and the choices you make may 
 # affect the outcome.\n""")
 
-# hero_name = input('Please enter your characters name: ')
-
-# print(f'\nAh, {hero_name}, a fine name for a valiant Knight.\n')
+# print(f'\nAh, {player.name}, a fine name for a valiant Knight.\n')
 
 # alignment = good_or_bad()
 
 # print(f'\nYou are {alignment}, interesting.')
+
 
 # print("""
 #     You stand in a single square room of a sprawling dungeon. 
@@ -108,9 +117,5 @@ def scene_one():
 #     Ahead of you, there is a door.
 #     """)
 
-# scene_one()
 
-# print("""
-#     You open the door to a narrow hallway.
-#     You see a large crate to your right and seconds later a Bandit jumps out!
-#     """)
+# scene_one()
