@@ -4,9 +4,27 @@
 
 
 class Human(object):
+    """
+    Creates instance of Human
+    """
     def __init__(self, name, health):
         self.name = name
         self.health = health
+
+
+class Weapon(object):
+    """
+    Creates instance of Weapon
+    """
+    def __init__(self, name, damage):
+        self.name = name
+        self.damage = damage
+
+    def attack(self):
+        return self.damage
+
+
+sword = Weapon('Sword', 20)
 
 
 class Player(object):
@@ -17,7 +35,7 @@ class Player(object):
         self.name = name
         self.health = health
         self.inventory = inventory
-        self.equipped = equipped # Equipped Weapon
+        self.equipped = equipped  # Equipped Weapon
 
     def get_inventory(self):
         print(self.inventory)
@@ -26,12 +44,14 @@ class Player(object):
         self.inventory.append(item)
 
     def attack(self, target):
-        target.health -= 50
+        target.health -= self.equipped.attack()
 
 
 bandit = Human('Bandit', 100)
-player = Player('sanct', 100, [], 'hands')
+player = Player('sanct', 100, [], sword)
+
 player.attack(bandit)
+print('You attack the Bandit with your sword!')
 print(bandit.health)
 
 
