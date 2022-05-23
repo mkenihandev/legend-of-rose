@@ -21,9 +21,8 @@ class Player(object):
     def get_inventory(self):
         print(self.inventory)
 
-
-player = Player(input('Enter your name'), 100, [])
-print(player.name, player.health, player.inventory)
+    def update_inventory(self, item):
+        self.inventory.append(item)
 
 
 def good_or_bad():
