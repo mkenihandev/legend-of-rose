@@ -73,7 +73,12 @@ class Player(object):
         self.inventory.append(item)
 
     def attack(self, target):
-        if target.health > 0:
+        if target == 'ladybug':
+            print("""You attack the ladybug.
+You absolute Monster. 
+The ladybug releases a deadly neurotoxin that immediately kills you. 
+You have died.""")
+        elif target.health > 0:
             print(f'\nYou attack the {target.name}')
             target.health -= self.equipped.attack()
             print(f"\nThe {target.name}'s health is now {target.health}")
@@ -111,6 +116,7 @@ player.attack(bandit)
 player.attack(bandit)
 player.attack(bandit)
 print(f'Your brutality has made the {cellar.inventory[1]} cry')
+player.attack('ladybug')
 
 
 # --------------------------------------------- Everything below this line was initial laying out and testing-----------------------------------------
