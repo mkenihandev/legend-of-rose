@@ -24,7 +24,13 @@ class Weapon(object):
         return self.damage
 
 
-sword = Weapon('Sword', 20)
+torch = Weapon('Torch', 10)
+
+sword = Weapon('Sword', 35)
+
+axe = Weapon('Axe', 50)
+
+bomb = Weapon('Bomb', 100)
 
 
 class Player(object):
@@ -46,12 +52,22 @@ class Player(object):
     def attack(self, target):
         target.health -= self.equipped.attack()
 
+    def equip(self, item):
+        if item in self.inventory:
+            self.equipped = item
+        else:
+            print(f'You do not have a {str(item.name)}')
+
 
 bandit = Human('Bandit', 100)
 player = Player('sanct', 100, [], sword)
 
 player.attack(bandit)
-print('You attack the Bandit with your sword!')
+print(f'You attack the Bandit with your {str(player.equipped.name)}')
+print(bandit.health)
+player.equip(bomb)
+player.attack(bandit)
+print(f'You attack the Bandit with your {str(player.equipped.name)}')
 print(bandit.health)
 
 
