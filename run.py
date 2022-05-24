@@ -7,17 +7,21 @@ class Room(object):
     """
     Creates instance of Room
     """
-    def __init__(self, name, inventory):
+    def __init__(self, name, inventory, size):
         self.name = name
         self.inventory = inventory
+        self.size = size
 
     def remove_item(self, item):
         self.inventory.remove(item)
 
     def get_inventory(self):
-        print(f'Looking around you see: \n')
+        print('Looking around you see: \n')
         for item in self.inventory:
-            print(f'- A {item.name}')
+            if isinstance(item, str):
+                print(f'- A {item}')
+            else:
+                print(f'- A {item.name}')
 
 
 class Weapon(object):
@@ -69,7 +73,12 @@ class Player(object):
         self.inventory.append(item)
 
     def attack(self, target):
-        target.health -= self.equipped.attack()
+        if target.health > 0:
+            print(f'\nYou attack the {target.name}')
+            target.health -= self.equipped.attack()
+            print(f"\nThe {target.name}'s health is now {target.health}")
+        else:
+            print(f"Stop!!! {target.name}'s already dead 😭")
 
     def equip(self, item):
         if item in self.inventory:
@@ -83,13 +92,28 @@ class Player(object):
 
 bandit = Human('Bandit', 100)
 player = Player('sanct', 100, [], hands)
-cellar = Room('Cellar', [torch, sword, axe])
+cellar = Room('Cellar', [torch, bandit, 'ladybug'], 'small')
 
-
+print(f'You stand in a {cellar.size} room.')
 cellar.get_inventory()
+print(f'\nYou pick up the {torch.name}\n')
 cellar.remove_item(torch)
 cellar.get_inventory()
+player.update_inventory(torch)
+player.equip(torch)
+print(f'\nYou now have the {player.equipped.name} equipped.')
+player.attack(bandit)
+player.attack(bandit)
+player.attack(bandit)
+player.attack(bandit)
+player.attack(bandit)
+player.attack(bandit)
+player.attack(bandit)
+player.attack(bandit)
+print(f'Your brutality has made the {cellar.inventory[1]} cry')
 
+
+# --------------------------------------------- Everything below this line was initial laying out and testing-----------------------------------------
 
 # def good_or_bad():
 #     answer = ''
@@ -146,7 +170,6 @@ cellar.get_inventory()
 #     while (answer == ''):
 #         answer = input('').lower()
 #         if answer == 'attack': 
-
 
 
 # print("""
