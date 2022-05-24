@@ -3,13 +3,21 @@
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 
 
-class Human(object):
+class Room(object):
     """
-    Creates instance of Human
+    Creates instance of Room
     """
-    def __init__(self, name, health):
+    def __init__(self, name, inventory):
         self.name = name
-        self.health = health
+        self.inventory = inventory
+
+    def remove_item(self, item):
+        self.inventory.remove(item)
+
+    def get_inventory(self):
+        print(f'Looking around you see: \n')
+        for item in self.inventory:
+            print(f'- A {item.name}')
 
 
 class Weapon(object):
@@ -24,13 +32,24 @@ class Weapon(object):
         return self.damage
 
 
-torch = Weapon('Torch', 10)
+hands = Weapon('Hands', 10)
+
+torch = Weapon('Torch', 15)
 
 sword = Weapon('Sword', 35)
 
 axe = Weapon('Axe', 50)
 
 bomb = Weapon('Bomb', 100)
+
+
+class Human(object):
+    """
+    Creates instance of Human
+    """
+    def __init__(self, name, health):
+        self.name = name
+        self.health = health
 
 
 class Player(object):
@@ -58,66 +77,67 @@ class Player(object):
         else:
             print(f'You do not have a {str(item.name)}')
 
+    def unequip(self):
+        self.equipped = hands
+
 
 bandit = Human('Bandit', 100)
-player = Player('sanct', 100, [], sword)
-
-player.attack(bandit)
-print(f'You attack the Bandit with your {str(player.equipped.name)}')
-print(bandit.health)
-player.equip(bomb)
-player.attack(bandit)
-print(f'You attack the Bandit with your {str(player.equipped.name)}')
-print(bandit.health)
+player = Player('sanct', 100, [], hands)
+cellar = Room('Cellar', [torch, sword, axe])
 
 
-def good_or_bad():
-    answer = ''
-    while answer != 'yes' and answer != 'no':
-        answer = input(f'A simple choice to start with {player.name}, are you good and true of heart?\nYes/No: ').lower()
-        alignment = ''
-        if answer == 'yes':
-            alignment = 'a stoic Knight, good and true of heart'
-        else:
-            alignment = 'a dark soul, ruthless and out for blood'
-    return alignment
+cellar.get_inventory()
+cellar.remove_item(torch)
+cellar.get_inventory()
 
 
-def scene_one():
-    print("""
-    What do you do?
-    (E.g. Look around/Open Door/Inventory)
-    """)
-    answer = ''
-    while (answer == ''):
-        answer = input('').lower()
-        if answer == 'look around' and 'torch' not in player.inventory:
-            print('You see an unlit torch lying on the ground.')
-            scene_one()
-        elif answer == 'look around' and 'torch' in player.inventory:
-            print('You see the soot from where the torch used to be.')
-            scene_one()
-        elif answer == 'inventory':
-            print('The items in your inventory:')
-            for item in player.inventory:
-                print(f'- {item}')
-            scene_one()
-        elif answer == 'open door':
-            print('Next Scene')
-            break
-        elif answer == 'stay here':
-            print('You have died. Restart.')
-            break
-        elif 'torch' in answer and 'torch' not in player.inventory:
-            print('You pick up the torch.')
-            player.update_inventory('torch')
-            scene_one()
-        elif answer == 'quit':
-            print('The Rose awaits your next attempt.')
-            break
-        else:
-            print('You cannot do that.')
-            scene_one()
+# def good_or_bad():
+#     answer = ''
+#     while answer != 'yes' and answer != 'no':
+#         answer = input(f'A simple choice to start with {player.name}, are you good and true of heart?\nYes/No: ').lower()
+#         alignment = ''
+#         if answer == 'yes':
+#             alignment = 'a stoic Knight, good and true of heart'
+#         else:
+#             alignment = 'a dark soul, ruthless and out for blood'
+#     return alignment
+
+
+# def scene_one():
+#     print("""
+#     What do you do?
+#     (E.g. Look around/Open Door/Inventory)
+#     """)
+#     answer = ''
+#     while (answer == ''):
+#         answer = input('').lower()
+#         if answer == 'look around' and 'torch' not in player.inventory:
+#             print('You see an unlit torch lying on the ground.')
+#             scene_one()
+#         elif answer == 'look around' and 'torch' in player.inventory:
+#             print('You see the soot from where the torch used to be.')
+#             scene_one()
+#         elif answer == 'inventory':
+#             print('The items in your inventory:')
+#             for item in player.inventory:
+#                 print(f'- {item}')
+#             scene_one()
+#         elif answer == 'open door':
+#             print('Next Scene')
+#             break
+#         elif answer == 'stay here':
+#             print('You have died. Restart.')
+#             break
+#         elif 'torch' in answer and 'torch' not in player.inventory:
+#             print('You pick up the torch.')
+#             player.update_inventory('torch')
+#             scene_one()
+#         elif answer == 'quit':
+#             print('The Rose awaits your next attempt.')
+#             break
+#         else:
+#             print('You cannot do that.')
+#             scene_one()
 
 
 # def scene_two():
