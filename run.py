@@ -4,6 +4,18 @@
 
 import time
 
+import sys
+
+
+def clear(sys):
+    # for windows
+    if name == 'nt':
+        _ = system('cls')
+
+    # for mac and linux
+    else:
+        _ = system('clear')
+
 
 class Room(object):
     """
@@ -130,6 +142,7 @@ def scene_one():
             print('\nYou pick up the torch.')
             player.update_inventory(torch)
             time.sleep(2)
+            clear()
             scene_one()
         elif answer == 'inventory':
             player.get_inventory()
