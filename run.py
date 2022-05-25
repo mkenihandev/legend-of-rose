@@ -2,6 +2,8 @@
 # You can delete these comments, but do not change the name of this file
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 
+import time
+
 
 class Room(object):
     """
@@ -83,12 +85,7 @@ class Player(object):
         self.inventory.append(item)
 
     def attack(self, target):
-        if target == 'ladybug':
-            print("""You attack the ladybug.
-You absolute Monster. 
-The ladybug releases a deadly neurotoxin that immediately kills you. 
-You have died.""")
-        elif target.health > 0:
+        if target.health > 0:
             print(f'\nYou attack the {target.name}')
             target.health -= self.equipped.attack()
             print(f"\nYou deal {self.equipped.damage} damage to the {target.name}")
@@ -99,14 +96,18 @@ You have died.""")
         if item in self.inventory:
             self.equipped = item
         else:
-            print(f'\nYou do not have a {str(item.name)}')
+            if isinstance(item, str):
+                print(f'\nYou do not have a {str(item)}')
+            else:
+                print(f'\nYou do not have a {item.name}')
 
     def unequip(self):
         self.equipped = hands
 
 
 bandit = Human('Bandit', 100)
-cellar = Room('Cellar', [torch, bandit, 'ladybug'], 'small')
+
+cellar = Room('Cellar', [torch], 'small')
 
 
 def scene_one():
@@ -119,16 +120,24 @@ def scene_one():
         answer = input('').lower()
         if 'look around' in answer and torch not in player.inventory:
             cellar.get_inventory()
+            time.sleep(2)
             scene_one()
         elif answer == 'look around' and torch in player.inventory:
             print('\nYou see the soot from where the torch used to be.')
+            time.sleep(2)
             scene_one()
         elif 'torch' in answer and torch not in player.inventory:
             print('\nYou pick up the torch.')
             player.update_inventory(torch)
+            time.sleep(2)
             scene_one()
         elif answer == 'inventory':
             player.get_inventory()
+            time.sleep(2)
+            scene_one()
+        elif 'equip' in answer:
+            pickup = input('\nWhat item would you like to equip?\n')  # issues here, need non string to compare it to inventory items
+            player.equip(pickup)
             scene_one()
         elif answer == 'stay here':
             print('\nYou patiently wait and die of hunger. Please restart.')
@@ -141,15 +150,8 @@ def scene_one():
             break
         else:
             print('\nYou cannot do that.')
+            time.sleep(2)
             scene_one()
-
-
-# def scene_two():
-#     print(f'While will you do, brave {player.name}?')
-#     answer = ''
-#     while (answer == ''):
-#         answer = input('').lower()
-#         if answer == 'attack': 
 
 
 print("""
@@ -160,9 +162,15 @@ it is well guarded.
 You will face many challenges along the way, and the choices you make may 
 affect the outcome.\n""")
 
+time.sleep(2)
+
 player = Player(input('Enter your name, Hero: '), 100, [], hands)
 
+time.sleep(2)
+
 print(f'\nAh, {player.name}, a fine name for a valiant Knight.\n')
+
+time.sleep(2)
 
 print("""
     You stand in a single square room of a sprawling dungeon. 
