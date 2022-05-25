@@ -117,7 +117,7 @@ def scene_one():
     """)
     answer = ''
     while (answer == ''):
-        answer = input('').lower()
+        answer = input('\n').lower()
         if 'look around' in answer and torch not in player.inventory:
             cellar.get_inventory()
             time.sleep(2)
