@@ -4,18 +4,6 @@
 
 import time
 
-import sys
-
-
-def clear(sys):
-    # for windows
-    if name == 'nt':
-        _ = system('cls')
-
-    # for mac and linux
-    else:
-        _ = system('clear')
-
 
 class Room(object):
     """
@@ -121,77 +109,119 @@ bandit = Human('Bandit', 100)
 
 cellar = Room('Cellar', [torch], 'small')
 
+player = Player("sanct", 100, [], hands)
 
-def scene_one():
-    print("""
-    What do you do?
-    (E.g. Look around/Open Door/Inventory)
-    """)
+
+def loop_back(room):
+    room()
+
+
+def check_generics(choice, room):
+    if 'inventory' in choice:
+        player.get_inventory()
+        loop_back(room)
+    elif 'look around' in choice:
+        room.get_inventory()
+        loop_back(room)
+    elif 'equip' in choice:
+        equipment = input('\nWhat item would you like to equip?\n')
+        player.equip(equipment)
+        loop_back(room)
+    elif 'quit' in choice:
+        quit()
+    else:
+        pass
+
+
+def test_room():
+    print("Scenario with choices see")
     answer = ''
     while (answer == ''):
         answer = input('\n').lower()
-        if 'look around' in answer and torch not in player.inventory:
-            cellar.get_inventory()
-            time.sleep(2)
-            scene_one()
-        elif answer == 'look around' and torch in player.inventory:
-            print('\nYou see the soot from where the torch used to be.')
-            time.sleep(2)
-            scene_one()
-        elif 'torch' in answer and torch not in player.inventory:
-            print('\nYou pick up the torch.')
-            player.update_inventory(torch)
-            time.sleep(2)
-            clear()
-            scene_one()
-        elif answer == 'inventory':
-            player.get_inventory()
-            time.sleep(2)
-            scene_one()
-        elif 'equip' in answer:
-            pickup = input('\nWhat item would you like to equip?\n')  # issues here, need non string to compare it to inventory items
-            player.equip(pickup)
-            scene_one()
-        elif answer == 'stay here':
-            print('\nYou patiently wait and die of hunger. Please restart.')
-            break
-        elif answer == 'quit':
-            print('\nThe Rose awaits your next attempt.')
-            break
-        elif answer == 'open door':
-            print('Next Scene')
-            break
+        check_generics(answer, test_room)
+        if 'chicken butt' in answer:
+            print("Very rude")
+            test_room()
+        if 'testing love' in answer:
+            print("Love is a concept")
+            test_room()
         else:
-            print('\nYou cannot do that.')
-            time.sleep(2)
-            scene_one()
+            print("You cannot do that")
+            test_room()
 
 
-print("""
-Welcome Hero to The Legend of Rose.
-Your goal is to obtain the legendary Rose held in Castle Rosebush.
-Revered for it's incredible ability to flatter the one you love, 
-it is well guarded.
-You will face many challenges along the way, and the choices you make may 
-affect the outcome.\n""")
+test_room()
 
-time.sleep(2)
 
-player = Player(input('Enter your name, Hero: '), 100, [], hands)
+# def scene_one():
+#     print("""
+#     What do you do?
+#     (E.g. Look around/Open Door/Inventory)
+#     """)
+#     answer = ''
+#     while (answer == ''):
+#         answer = input('\n').lower()
+#         if 'look around' in answer and torch not in player.inventory:
+#             cellar.get_inventory()
+#             time.sleep(2)
+#             scene_one()
+#         elif answer == 'look around' and torch in player.inventory:
+#             print('\nYou see the soot from where the torch used to be.')
+#             time.sleep(2)
+#             scene_one()
+#         elif 'torch' in answer and torch not in player.inventory:
+#             print('\nYou pick up the torch.')
+#             player.update_inventory(torch)
+#             time.sleep(2)
+#             scene_one()
+#         elif answer == 'inventory':
+#             player.get_inventory()
+#             time.sleep(2)
+#             scene_one()
+#         elif 'equip' in answer:
+#             pickup = input('\nWhat item would you like to equip?\n')  # issues here, need non string to compare it to inventory items
+#             player.equip(pickup)
+#             scene_one()
+#         elif answer == 'stay here':
+#             print('\nYou patiently wait and die of hunger. Please restart.')
+#             break
+#         elif answer == 'quit':
+#             print('\nThe Rose awaits your next attempt.')
+#             break
+#         elif answer == 'open door':
+#             print('Next Scene')
+#             break
+#         else:
+#             print('\nYou cannot do that.')
+#             time.sleep(2)
+#             scene_one()
 
-time.sleep(2)
 
-print(f'\nAh, {player.name}, a fine name for a valiant Knight.\n')
+# print("""
+# Welcome Hero to The Legend of Rose.
+# Your goal is to obtain the legendary Rose held in Castle Rosebush.
+# Revered for it's incredible ability to flatter the one you love, 
+# it is well guarded.
+# You will face many challenges along the way, and the choices you make may 
+# affect the outcome.\n""")
 
-time.sleep(2)
+# time.sleep(2)
 
-print("""
-    You stand in a single square room of a sprawling dungeon. 
-    You were told at the end of this dungeon, 
-    a secret passage can be found 
-    leading directly to the throne room of Caslte Rosebush, 
-    where the Rose is held.
-    Ahead of you, there is a door.
-    """)
+# player = Player(input('Enter your name, Hero: '), 100, [], hands)
 
-scene_one()
+# time.sleep(2)
+
+# print(f'\nAh, {player.name}, a fine name for a valiant Knight.\n')
+
+# time.sleep(2)
+
+# print("""
+#     You stand in a single square room of a sprawling dungeon. 
+#     You were told at the end of this dungeon, 
+#     a secret passage can be found 
+#     leading directly to the throne room of Caslte Rosebush, 
+#     where the Rose is held.
+#     Ahead of you, there is a door.
+#     """)
+
+# scene_one()
