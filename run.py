@@ -2,6 +2,7 @@
 # You can delete these comments, but do not change the name of this file
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 
+
 import time
 
 
@@ -113,10 +114,18 @@ player = Player("sanct", 100, [], hands)
 
 
 def loop_back(room):
+    """
+    Takes the current room as a parameter and loops it back
+    Created to allow functions like check_generics() to exist outside
+    of the scenarios and still loop the room back
+    """
     room()
 
 
 def check_generics(choice, room):
+    """
+    Checks for generic choices the player can do in any scenario/room
+    """
     if 'inventory' in choice:
         player.get_inventory()
         loop_back(room)
@@ -131,26 +140,6 @@ def check_generics(choice, room):
         quit()
     else:
         pass
-
-
-def test_room():
-    print("Scenario with choices see")
-    answer = ''
-    while (answer == ''):
-        answer = input('\n').lower()
-        check_generics(answer, test_room)
-        if 'chicken butt' in answer:
-            print("Very rude")
-            test_room()
-        if 'testing love' in answer:
-            print("Love is a concept")
-            test_room()
-        else:
-            print("You cannot do that")
-            test_room()
-
-
-test_room()
 
 
 # def scene_one():
