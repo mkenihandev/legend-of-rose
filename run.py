@@ -94,13 +94,13 @@ class Player(object):
             print(f"\nStop!!! {target.name}'s already dead 😭")
 
     def equip(self, item):
-        if item in self.inventory:
-            self.equipped = item
-        else:
-            if isinstance(item, str):
-                print(f'\nYou do not have a {str(item)}')
+        for x in self.inventory:
+            if item in x.name:
+                print(f"You have equipped the {item}")
+                self.equipped = x
             else:
-                print(f'\nYou do not have a {item.name}')
+                print(f"You do not have the {item}")
+                continue
 
     def unequip(self):
         self.equipped = hands
@@ -110,7 +110,12 @@ bandit = Human('Bandit', 100)
 
 cellar = Room('Cellar', [torch], 'small')
 
-player = Player("sanct", 100, [], hands)
+player = Player("sanct", 100, [axe, sword, torch], hands)
+
+whatever = "Torch"
+
+player.equip(whatever)
+print(player.equipped.name)
 
 
 def loop_back(room):
