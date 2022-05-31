@@ -121,7 +121,21 @@ class Player(object):
             print(f'You do not have the {item}')
 
     def unequip(self):
+        """
+        Unequips held weapon and defaults to hands
+        """
         self.equipped = hands
+
+    def heal(self):
+        if self.health <= 90:
+            self.health += 10
+            print(f'You have healed for 10 points! Your health is now {self.health}')
+        elif self.health > 90 and self.health != 100:
+            health_to_add = (100 - self.health)
+            self.health += health_to_add
+            print(f'You have healed for {health_to_add} points! Your health is now {self.health}')
+        elif self.health == 100:
+            print('You are already max health.')
 
 
 def loop_back(room):
@@ -158,24 +172,27 @@ def combat(user, enemy):
         if user.turn:
             print(f'The {enemy.name} is in front of you. What do you do?')
             user_answer = input('\n').lower()
+
             check_generics(user_answer, test_scene)
+
             if 'attack' in user_answer:
                 user.attack(enemy)
                 print(f'{enemy.name} health is now {enemy.health}')
+                user.turn = False
             elif 'heal' in user_answer:
-                if user.health <= 90:
-                    user.health += 10
-                    print(f'You have healed for 10 points! Your health is now {user.health}')
-                elif user.health > 90 and user.health != 100:
-                    health_to_add = (100 - user.health)
-                    user.health += health_to_add
-                    print(f'You have healed for {health_to_add} points! Your health is now {user.health}')
-                elif user.health == 100:
-                    print('You are already max health.')
+                user.heal()
+                user.turn == False
             elif 'kiss' in user_answer:
                 print(f'You kiss the {enemy.name}, for a brief second they fall in love with you. As a consequence they take some damage.')
                 enemy.health -= 10
                 print(f'{enemy.name} health is now {enemy.health}')
+                user.turn = False
+        else:
+            damage = 10
+            print(f'The {enemy.name} attacks you for {damage} health')
+            user.health -= damage
+            print(f'Your health is now {user.health}')
+            user.turn = True
 
 
 bandit = Human('Bandit', 100, False)
