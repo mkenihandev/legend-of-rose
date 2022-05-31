@@ -94,13 +94,22 @@ class Player(object):
             print(f"\nStop!!! {target.name}'s already dead 😭")
 
     def equip(self, item):
+        """
+        Equips an item from the players inventory
+        Checks if item is in inventory first
+        """
+        is_in = False
+
         for x in self.inventory:
-            if item in x.name:
-                print(f"You have equipped the {item}")
+            if item.lower() in x.name.lower():
                 self.equipped = x
-            else:
-                print(f"You do not have the {item}")
-                continue
+                is_in = True
+                break
+
+        if is_in:
+            print(f'You have equipped the {x.name}')
+        else:
+            print(f'You do not have the {item}')
 
     def unequip(self):
         self.equipped = hands
@@ -111,11 +120,6 @@ bandit = Human('Bandit', 100)
 cellar = Room('Cellar', [torch], 'small')
 
 player = Player("sanct", 100, [axe, sword, torch], hands)
-
-whatever = "Torch"
-
-player.equip(whatever)
-print(player.equipped.name)
 
 
 def loop_back(room):
