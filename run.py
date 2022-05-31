@@ -57,22 +57,28 @@ class Human(object):
     """
     Creates instance of Human
     """
-    def __init__(self, name, health):
+    def __init__(self, name, health, turn):
         self.name = name
         self.health = health
+        self.turn = turn
 
 
 class Player(object):
     """
     Creates and instance of Player
     """
-    def __init__(self, name, health, inventory, equipped):
+
+    def __init__(self, name, health, inventory, equipped, turn):
         self.name = name
         self.health = health
         self.inventory = inventory
         self.equipped = equipped  # Equipped Weapon
+        self.turn = turn
 
     def get_inventory(self):
+        """
+        Prints everything in player inventory
+        """
         if self.inventory == []:
             print('\nYou have nothing in your inventory')
         else:
@@ -83,11 +89,14 @@ class Player(object):
                     print(f'- A {item.name}')
 
     def update_inventory(self, item):
+        """
+        Adds an item to the players inventory
+        """
         self.inventory.append(item)
 
     def attack(self, target):
         if target.health > 0:
-            print(f'\nYou attack the {target.name}')
+            print(f'\nYou attack the {target.name} with your {self.equipped.name}')
             target.health -= self.equipped.attack()
             print(f"\nYou deal {self.equipped.damage} damage to the {target.name}")
         else:
@@ -113,13 +122,6 @@ class Player(object):
 
     def unequip(self):
         self.equipped = hands
-
-
-bandit = Human('Bandit', 100)
-
-cellar = Room('Cellar', [torch], 'small')
-
-player = Player("sanct", 100, [axe, sword, torch], hands)
 
 
 def loop_back(room):
@@ -149,6 +151,48 @@ def check_generics(choice, room):
         quit()
     else:
         pass
+
+
+def combat(user, enemy):
+    while player.health and enemy.health > 0:
+        if user.turn:
+            print(f'The {enemy.name} is in front of you. What do you do?')
+            user_answer = input('\n').lower()
+            check_generics(user_answer, test_scene)
+            if 'attack' in user_answer:
+                user.attack(enemy)
+                print(f'{enemy.name} health is now {enemy.health}')
+            elif 'heal' in user_answer:
+                if user.health <= 90:
+                    user.health += 10
+                    print(f'You have healed for 10 points! Your health is now {user.health}')
+                elif user.health > 90 and user.health != 100:
+                    health_to_add = (100 - user.health)
+                    user.health += health_to_add
+                    print(f'You have healed for {health_to_add} points! Your health is now {user.health}')
+                elif user.health == 100:
+                    print('You are already max health.')
+            elif 'kiss' in user_answer:
+                print(f'You kiss the {enemy.name}, for a brief second they fall in love with you. As a consequence they take some damage.')
+                enemy.health -= 10
+                print(f'{enemy.name} health is now {enemy.health}')
+
+
+bandit = Human('Bandit', 100, False)
+
+cellar = Room('Cellar', [torch], 'small')
+
+room_print = print('testing')
+
+player = Player("sanct", 91, [axe, sword, torch], hands, True)
+
+print(player.turn)
+print(bandit.turn)
+
+def test_scene():
+    combat(player, bandit)
+
+test_scene()
 
 
 # def scene_one():
