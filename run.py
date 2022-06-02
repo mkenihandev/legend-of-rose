@@ -53,6 +53,20 @@ axe = Weapon('Axe', 50)
 bomb = Weapon('Bomb', 100)
 
 
+class Item(object):
+    """
+    Creates instance of Item
+    """
+    def __init__(self, name, modifier):
+        self.name = name
+        self.modifier = modifier
+
+
+potion = Item('Health Potion', 20)
+
+armor = Item('Armor', 50)
+
+
 class Human(object):
     """
     Creates instance of Human
@@ -68,12 +82,13 @@ class Player(object):
     Creates and instance of Player
     """
 
-    def __init__(self, name, health, inventory, equipped, turn):
+    def __init__(self, name, health, max_health, inventory, equipped, turn):
         self.name = name
         self.health = health
         self.inventory = inventory
         self.equipped = equipped  # Equipped Weapon
         self.turn = turn
+        self.max_health = max_health
 
     def get_inventory(self):
         """
@@ -127,15 +142,20 @@ class Player(object):
         self.equipped = hands
 
     def heal(self):
-        if self.health <= 90:
-            self.health += 10
-            print(f'You have healed for 10 points! Your health is now {self.health}')
-        elif self.health > 90 and self.health != 100:
-            health_to_add = (100 - self.health)
-            self.health += health_to_add
-            print(f'You have healed for {health_to_add} points! Your health is now {self.health}')
-        elif self.health == 100:
-            print('You are already max health.')
+        if potion in self.inventory:
+            if self.health <= 80:
+                self.health += potion.modifier
+                print(f'\nYou have healed for {potion.modifier} points! Your health is now {self.health}')
+                self.inventory.remove(potion)
+            elif self.health > 80 and self.health != 100:
+                health_to_add = (100 - self.health)
+                self.health += health_to_add
+                print(f'\nYou have healed for {health_to_add} points! Your health is now {self.health}')
+                self.inventory.remove(potion)
+            elif self.health == self.max_health:
+                print('\nYou are already max health.')
+        else: 
+            print('\nYou do not have a health potion.')
 
 
 def loop_back(room):
@@ -181,7 +201,7 @@ def combat(user, enemy):
                 user.turn = False
             elif 'heal' in user_answer:
                 user.heal()
-                user.turn == False
+                user.turn = False
             elif 'kiss' in user_answer:
                 print(f'You kiss the {enemy.name}, for a brief second they fall in love with you. As a consequence they take some damage.')
                 enemy.health -= 10
@@ -201,13 +221,15 @@ cellar = Room('Cellar', [torch], 'small')
 
 room_print = print('testing')
 
-player = Player("sanct", 91, [axe, sword, torch], hands, True)
+player = Player("sanct", 80, 100, [potion, potion, potion], hands, True)
 
 print(player.turn)
 print(bandit.turn)
 
+
 def test_scene():
     combat(player, bandit)
+
 
 test_scene()
 
