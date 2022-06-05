@@ -1,6 +1,8 @@
 # Your code goes here.
 # You can delete these comments, but do not change the name of this file
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
+import os
+os.system('cls' if os.name == 'nt' else 'clear')
 
 
 import time
@@ -16,9 +18,15 @@ class Room(object):
         self.size = size
 
     def remove_item(self, item):
+        """
+        Method for removing an item from the rooms item pool
+        """
         self.inventory.remove(item)
 
     def get_inventory(self):
+        """
+        Prints out the rooms inventory
+        """
         print('\nLooking around you see: \n')
         for item in self.inventory:
             if isinstance(item, str):
@@ -27,6 +35,9 @@ class Room(object):
                 print(f'- A {item.name}')
 
     def description(self):
+        """
+        Describes the room
+        """
         print(f'A {self.size} room, dimly lit.')
 
 
@@ -39,6 +50,9 @@ class Weapon(object):
         self.damage = damage
 
     def attack(self):
+        """
+        Returns the damage number from the weapon for use elsewhere
+        """
         return self.damage
 
 
@@ -110,6 +124,9 @@ class Player(object):
         self.inventory.append(item)
 
     def attack(self, target):
+        """
+        Attack method, takes a target and applies damage using equipped weapon value
+        """
         if target.health > 0:
             print(f'\nYou attack the {target.name} with your {self.equipped.name}')
             target.health -= self.equipped.attack()
@@ -142,6 +159,9 @@ class Player(object):
         self.equipped = hands
 
     def heal(self):
+        """
+        Heals the player if there is a potion in their inventory
+        """
         if potion in self.inventory:
             if self.health <= 80:
                 self.health += potion.modifier
@@ -188,6 +208,9 @@ def check_generics(choice, room):
 
 
 def combat(user, enemy):
+    """
+    Combat function, does not break until player/ai hp is 0
+    """
     while player.health and enemy.health > 0:
         if user.turn:
             print(f'The {enemy.name} is in front of you. What do you do?')
@@ -226,12 +249,51 @@ player = Player("sanct", 80, 100, [potion, potion, potion], hands, True)
 print(player.turn)
 print(bandit.turn)
 
-
+        
 def test_scene():
     combat(player, bandit)
 
 
-test_scene()
+def menu():
+    """
+    Menu for the game, gives player chance to learn about the game before hopping in
+    """
+    while True:
+        os.system('clear')
+        print("""
+Welcome Hero to The Legend of Rose.
+Your goal is to obtain the legendary Rose held in Castle Rosebush.
+Revered for it's incredible ability to flatter the one you love, 
+it is well guarded.
+You will face many challenges along the way, and the choices you make may 
+affect the outcome.\n""")
+        print("""
+Type the corrosponding letter to choose:
+P - Play
+I - Information
+        """)
+        answer = ''
+        while (answer == ''):
+            answer = input('').lower()
+            if 'p' in answer or 'play' in answer:
+                quit()
+            elif 'i' in answer or 'information' in answer:
+                print("""
+Play The Legend of Rose by typing whatever you like at given points.
+The system will determine if your input is valid and let you do certain 
+actions.
+If there is something you cannot do, the system should tell you this.
+Combat is taken in turns with the AI.
+The story is silly and not to be taken seriously, get silly with it!
+                """)
+                time.sleep(3)
+                print("""
+Back to Menu? (Any input)
+                """)
+                input('')
+
+
+menu()
 
 
 # def scene_one():
@@ -277,14 +339,6 @@ test_scene()
 #             time.sleep(2)
 #             scene_one()
 
-
-# print("""
-# Welcome Hero to The Legend of Rose.
-# Your goal is to obtain the legendary Rose held in Castle Rosebush.
-# Revered for it's incredible ability to flatter the one you love, 
-# it is well guarded.
-# You will face many challenges along the way, and the choices you make may 
-# affect the outcome.\n""")
 
 # time.sleep(2)
 
