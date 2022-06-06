@@ -1,31 +1,22 @@
-![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)
+# The Legend of Rose Table of Contents
 
-Welcome mkenihandev,
+- [The Legend of Rose](#the-legend-of-rose)
 
-This is the Code Institute student template for deploying your third portfolio project, the Python command-line project. The last update to this file was: **August 17, 2021**
+- [Initial UX Goals and Designs](#initial-ux-goals-and-designs)
 
-## Reminders
+- [Features of the Website](#features-of-the-website)
 
-* Your code must be placed in the `run.py` file
-* Your dependencies must be placed in the `requirements.txt` file
-* Do not edit any of the other files or your code may not deploy properly
+- [Testing and Bug Solving](#testing-and-bug-solving)
 
-## Creating the Heroku app
+- [Deployment](#deployment)
 
-When you create the app, you will need to add two buildpacks from the _Settings_ tab. The ordering is as follows:
+- [Credits](#credits)
 
-1. `heroku/python`
-2. `heroku/nodejs`
+# The Legend of Rose
 
-You must then create a _Config Var_ called `PORT`. Set this to `8000`
+<img src="readme-images/title-card.PNG">
 
-If you have credentials, such as in the Love Sandwiches project, you must create another _Config Var_ called `CREDS` and paste the JSON into the value field.
+The Legend of Rose is a text based adventure game
 
-Connect your GitHub repository and deploy as normal.
-
-## Constraints
-
-The deployment terminal is set to 80 columns by 24 rows. That means that each line of text needs to be 80 characters or less otherwise it will be wrapped onto a second line.
-
------
-Happy coding!
+## Initial UX Goals and Designs
+<hr>

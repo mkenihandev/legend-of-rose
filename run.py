@@ -8,6 +8,9 @@ os.system('cls' if os.name == 'nt' else 'clear')
 import time
 
 
+# -------------------------------------------- Classes ---------------------------------
+
+
 class Room(object):
     """
     Creates instance of Room
@@ -56,17 +59,6 @@ class Weapon(object):
         return self.damage
 
 
-hands = Weapon('Hands', 10)
-
-torch = Weapon('Torch', 15)
-
-sword = Weapon('Sword', 35)
-
-axe = Weapon('Axe', 50)
-
-bomb = Weapon('Bomb', 100)
-
-
 class Item(object):
     """
     Creates instance of Item
@@ -74,11 +66,6 @@ class Item(object):
     def __init__(self, name, modifier):
         self.name = name
         self.modifier = modifier
-
-
-potion = Item('Health Potion', 20)
-
-armor = Item('Armor', 50)
 
 
 class Human(object):
@@ -91,18 +78,22 @@ class Human(object):
         self.turn = turn
 
 
+# ---------------------------------------- Player Class ---------------------------------
+
+
 class Player(object):
     """
     Creates and instance of Player
     """
 
-    def __init__(self, name, health, max_health, inventory, equipped, turn):
+    def __init__(self, name, health, max_health, inventory, equipped, turn, current_room):
         self.name = name
         self.health = health
         self.inventory = inventory
         self.equipped = equipped  # Equipped Weapon
         self.turn = turn
         self.max_health = max_health
+        self.current_room = current_room
 
     def get_inventory(self):
         """
@@ -130,6 +121,7 @@ class Player(object):
         if target.health > 0:
             print(f'\nYou attack the {target.name} with your {self.equipped.name}')
             target.health -= self.equipped.attack()
+            time.sleep(1)
             print(f"\nYou deal {self.equipped.damage} damage to the {target.name}")
         else:
             print(f"\nStop!!! {target.name}'s already dead 😭")
@@ -143,14 +135,15 @@ class Player(object):
 
         for x in self.inventory:
             if item.lower() in x.name.lower():
+                self.update_inventory(self.equipped)
                 self.equipped = x
                 is_in = True
                 break
 
         if is_in:
-            print(f'You have equipped the {x.name}')
+            print(f'\nYou have equipped the {x.name}')
         else:
-            print(f'You do not have the {item}')
+            print(f'\nYou do not have the {item}')
 
     def unequip(self):
         """
@@ -178,6 +171,9 @@ class Player(object):
             print('\nYou do not have a health potion.')
 
 
+# ---------------------------------------- Base functions ---------------------------------
+
+
 def loop_back(room):
     """
     Takes the current room as a parameter and loops it back
@@ -195,6 +191,7 @@ def check_generics(choice, room):
         player.get_inventory()
         loop_back(room)
     elif 'look around' in choice:
+        room.description()
         room.get_inventory()
         loop_back(room)
     elif 'equip' in choice:
@@ -205,53 +202,6 @@ def check_generics(choice, room):
         quit()
     else:
         pass
-
-
-def combat(user, enemy):
-    """
-    Combat function, does not break until player/ai hp is 0
-    """
-    while player.health and enemy.health > 0:
-        if user.turn:
-            print(f'The {enemy.name} is in front of you. What do you do?')
-            user_answer = input('\n').lower()
-
-            check_generics(user_answer, test_scene)
-
-            if 'attack' in user_answer:
-                user.attack(enemy)
-                print(f'{enemy.name} health is now {enemy.health}')
-                user.turn = False
-            elif 'heal' in user_answer:
-                user.heal()
-                user.turn = False
-            elif 'kiss' in user_answer:
-                print(f'You kiss the {enemy.name}, for a brief second they fall in love with you. As a consequence they take some damage.')
-                enemy.health -= 10
-                print(f'{enemy.name} health is now {enemy.health}')
-                user.turn = False
-        else:
-            damage = 10
-            print(f'The {enemy.name} attacks you for {damage} health')
-            user.health -= damage
-            print(f'Your health is now {user.health}')
-            user.turn = True
-
-
-bandit = Human('Bandit', 100, False)
-
-cellar = Room('Cellar', [torch], 'small')
-
-room_print = print('testing')
-
-player = Player("sanct", 80, 100, [potion, potion, potion], hands, True)
-
-print(player.turn)
-print(bandit.turn)
-
-        
-def test_scene():
-    combat(player, bandit)
 
 
 def menu():
@@ -287,13 +237,73 @@ Combat is taken in turns with the AI.
 The story is silly and not to be taken seriously, get silly with it!
                 """)
                 time.sleep(3)
-                print("""
-Back to Menu? (Any input)
-                """)
+                print("Back to Menu? (Any input)")
                 input('')
 
+# --------------------------------------- Combat ---------------------------------
 
-menu()
+
+def combat(user, enemy):
+    """
+    Combat function, does not break until player/ai hp is 0
+    """
+    while player.health and enemy.health > 0:
+        if user.turn:
+            print(f'The {enemy.name} is in front of you. What do you do?')
+            user_answer = input('\n').lower()
+
+            check_generics(user_answer, player.current_room)
+
+            if 'attack' in user_answer:
+                user.attack(enemy)
+                print(f'{enemy.name} health is now {enemy.health}')
+                user.turn = False
+            elif 'heal' in user_answer:
+                user.heal()
+                user.turn = False
+            elif 'kiss' in user_answer:
+                print(f'You kiss the {enemy.name}, for a brief second they fall in love with you. As a consequence they take some damage.')
+                enemy.health -= 10
+                print(f'{enemy.name} health is now {enemy.health}')
+                user.turn = False
+        else:
+            damage = 10
+            print(f'The {enemy.name} attacks you for {damage} health')
+            user.health -= damage
+            print(f'Your health is now {user.health}')
+            user.turn = True
+
+
+# --------------------------------------- Object definitions ---------------------------------
+
+room_print = print('testing')
+
+hands = Weapon('Hands', 10)
+
+torch = Weapon('Torch', 15)
+
+sword = Weapon('Sword', 35)
+
+axe = Weapon('Axe', 50)
+
+bomb = Weapon('Bomb', 100)
+
+potion = Item('Health Potion', 20)
+
+armor = Item('Armor', 50)
+
+bandit = Human('Bandit', 100, False)
+
+cellar = Room('Cellar', [torch], 'small')
+
+player = Player("sanct", 80, 100, [], hands, True, cellar)
+
+
+# --------------------------------------- Main Game ---------------------------------
+
+        
+def test_scene():
+    combat(player, bandit)
 
 
 # def scene_one():
@@ -322,7 +332,7 @@ menu()
 #             time.sleep(2)
 #             scene_one()
 #         elif 'equip' in answer:
-#             pickup = input('\nWhat item would you like to equip?\n')  # issues here, need non string to compare it to inventory items
+#             pickup = input('\nWhat item would you like to equip?\n')
 #             player.equip(pickup)
 #             scene_one()
 #         elif answer == 'stay here':
