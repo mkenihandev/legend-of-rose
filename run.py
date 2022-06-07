@@ -14,11 +14,12 @@ class Room(object):
     """
     Creates instance of Room
     """
-    def __init__(self, name, inventory, size, sections):
+    def __init__(self, name, inventory, size, sections, flavor):
         self.name = name
         self.inventory = inventory
         self.size = size
         self.sections = sections
+        self.flavor = flavor
 
     def remove_item(self, item):
         """
@@ -45,6 +46,7 @@ class Room(object):
         Describes the room
         """
         print(f'\nA {self.size} room, seemingly has {self.sections} sections.')
+        print(f'\n{self.flavor}')
 
 
 class Weapon(object):
@@ -309,12 +311,17 @@ def combat(player, enemy, scene):
             print(f'\nYour health is now {player.health}')
             player.turn = True
 
-    if player.health > 0:
+    if player.health > 0 and enemy in player.current_room.inventory:
         print(f'\nYou defeated the {enemy.name}, congratulations!')
         print('They drop:')
         enemy.get_loot()
-    else:
+        for items in enemy.loot:
+            player.current_room.inventory.append(items) # adds loot from enemy to room pool
+        player.current_room.remove_item(enemy) # removes the enemy from room pool
+    elif player.health <= 0:
         print('You have died. Restart.')
+    else:
+        pass
 
 
 # --------------------------------------- Object definitions ---------------------------------
@@ -335,7 +342,7 @@ potion = Item('Health Potion', 35)
 
 armor = Item('Armor', 50)
 
-injured_bandit = Enemy('Bandit', 25, 10, False, [potion, sword])
+injured_bandit = Enemy('Bandit', 10, 10, False, [potion, sword])
 
 bandit = Enemy('Bandit', 50, 15, False, [potion, bomb])
 
@@ -343,9 +350,9 @@ small_ogre = Enemy('Small Ogre', 100, 30, False, [axe, potion, potion])
 
 mother_ogre = Enemy('Mother Ogre', 150, 45, False, [potion, potion, potion, bomb])
 
-cellar = Room('Cellar', [torch], 'small', 1)
+cellar = Room('Cellar', [torch], 'small', 1, 'The room is dimly lit by something.')
 
-storage = Room('Storage Room', [injured_bandit, potion], 'small', 1)
+storage = Room('Storage Room', [injured_bandit, potion], 'small', 1, '\nAt the back of the room there appears to be a shattered wall, \nleading to a passage')
 
 
 # --------------------------------------- Main Game Scenarios ---------------------------------
