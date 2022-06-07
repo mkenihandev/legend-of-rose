@@ -15,10 +15,11 @@ class Room(object):
     """
     Creates instance of Room
     """
-    def __init__(self, name, inventory, size):
+    def __init__(self, name, inventory, size, sections):
         self.name = name
         self.inventory = inventory
         self.size = size
+        self.sections = sections
 
     def remove_item(self, item):
         """
@@ -30,18 +31,21 @@ class Room(object):
         """
         Prints out the rooms inventory
         """
-        print('\nLooking around you see: \n')
-        for item in self.inventory:
-            if isinstance(item, str):
-                print(f'- A {item}')
-            else:
-                print(f'- A {item.name}')
+        if self.inventory == []:
+            pass
+        else:
+            print('\nLooking around you see: \n')
+            for item in self.inventory:
+                if isinstance(item, str):
+                    print(f'- A {item}')
+                else:
+                    print(f'- A {item.name}')
 
     def description(self):
         """
         Describes the room
         """
-        print(f'A {self.size} room, dimly lit.')
+        print(f'\nA {self.size} room, seemingly has {self.sections} sections.')
 
 
 class Weapon(object):
@@ -126,6 +130,13 @@ class Player(object):
         else:
             print(f"\nStop!!! {target.name}'s already dead 😭")
 
+    def pickup(self, item):
+        if item in self.current_room.inventory:
+            self.update_inventory(item)
+            self.current_room.remove_item(item)
+        else:
+            print('You already have that.')
+
     def equip(self, item):
         """
         Equips an item from the players inventory
@@ -174,30 +185,36 @@ class Player(object):
 # ---------------------------------------- Base functions ---------------------------------
 
 
-def loop_back(room):
+def loop_back(player, scene):
     """
     Takes the current room as a parameter and loops it back
     Created to allow functions like check_generics() to exist outside
     of the scenarios and still loop the room back
     """
-    room()
+    scene(player)
 
 
-def check_generics(choice, room):
+def check_generics(player, choice, room, scene):
     """
     Checks for generic choices the player can do in any scenario/room
     """
     if 'inventory' in choice:
+        os.system('clear')
         player.get_inventory()
-        loop_back(room)
+        time.sleep(1)
+        loop_back(player, scene)
     elif 'look around' in choice:
+        os.system('clear')
         room.description()
         room.get_inventory()
-        loop_back(room)
+        time.sleep(1)
+        loop_back(player, scene)
     elif 'equip' in choice:
+        os.system('clear')
         equipment = input('\nWhat item would you like to equip?\n')
         player.equip(equipment)
-        loop_back(room)
+        time.sleep(1)
+        loop_back(player, scene)
     elif 'quit' in choice:
         quit()
     else:
@@ -208,7 +225,8 @@ def menu():
     """
     Menu for the game, gives player chance to learn about the game before hopping in
     """
-    while True:
+    menu = True
+    while menu:
         os.system('clear')
         print("""
 Welcome Hero to The Legend of Rose.
@@ -226,7 +244,7 @@ I - Information
         while (answer == ''):
             answer = input('').lower()
             if 'p' in answer or 'play' in answer:
-                quit()
+                menu = False
             elif 'i' in answer or 'information' in answer:
                 print("""
 Play The Legend of Rose by typing whatever you like at given points.
@@ -243,40 +261,39 @@ The story is silly and not to be taken seriously, get silly with it!
 # --------------------------------------- Combat ---------------------------------
 
 
-def combat(user, enemy):
+def combat(player, enemy):
     """
     Combat function, does not break until player/ai hp is 0
     """
     while player.health and enemy.health > 0:
-        if user.turn:
+        if player.turn:
             print(f'The {enemy.name} is in front of you. What do you do?')
             user_answer = input('\n').lower()
 
-            check_generics(user_answer, player.current_room)
+            check_generics(player, user_answer, player.current_room, scene_one)
 
             if 'attack' in user_answer:
-                user.attack(enemy)
+                player.attack(enemy)
                 print(f'{enemy.name} health is now {enemy.health}')
-                user.turn = False
+                player.turn = False
             elif 'heal' in user_answer:
-                user.heal()
-                user.turn = False
+                player.heal()
+                player.turn = False
             elif 'kiss' in user_answer:
-                print(f'You kiss the {enemy.name}, for a brief second they fall in love with you. As a consequence they take some damage.')
+                print(f'You kiss the {enemy.name}, for a brief second they fall in love with you. As a consequence they take some damage and lose a turn.')
                 enemy.health -= 10
                 print(f'{enemy.name} health is now {enemy.health}')
-                user.turn = False
+                player.turn = True
         else:
             damage = 10
-            print(f'The {enemy.name} attacks you for {damage} health')
-            user.health -= damage
-            print(f'Your health is now {user.health}')
-            user.turn = True
+            print(f'\nThe {enemy.name} attacks you for {damage} health')
+            player.health -= damage
+            time.sleep(1)
+            print(f'\nYour health is now {player.health}')
+            player.turn = True
 
 
 # --------------------------------------- Object definitions ---------------------------------
-
-room_print = print('testing')
 
 hands = Weapon('Hands', 10)
 
@@ -294,79 +311,55 @@ armor = Item('Armor', 50)
 
 bandit = Human('Bandit', 100, False)
 
-cellar = Room('Cellar', [torch], 'small')
+cellar = Room('Cellar', [torch], 'small', 3)
 
-player = Player("sanct", 80, 100, [], hands, True, cellar)
 
+# --------------------------------------- Main Game Scenarios ---------------------------------
+
+
+def scene_one(player):
+    """
+    First scene, cellar
+    """
+    print("""
+    What do you do?
+    (E.g. Look around/Open Door/Inventory)
+    """)
+    answer = ''
+    while (answer == ''):
+        answer = input('\n').lower()
+        check_generics(player, answer, cellar, scene_one)
+        if answer == 'stay here':
+            print('\nYou patiently wait and die of hunger. Please restart.')
+            quit()
+        elif answer == 'open door':
+            print('Next Scene')
+            break
+        elif 'torch' in answer:
+            player.pickup(torch)
+            scene_one(player)
+        else:
+            print('\nYou cannot do that.')
+            time.sleep(2)
+            scene_one(player)
 
 # --------------------------------------- Main Game ---------------------------------
 
-        
-def test_scene():
-    combat(player, bandit)
+
+def main():
+    """
+    Main game function
+    """
+    # menu()
+    # os.system('clear')
+    player = Player(input('\nWhat is your name, Hero?'), 80, 100, [], hands, True, cellar)
+    # print(f'\nAh, {player.name}, a fine name for a budding adventurer.')
+    # time.sleep(2)
+#     print("""\nYou find yourself in a dimly lit cellar.
+# You have been told this cellar leads to a secret passage directly to the Throne Room
+# of Castle Rose.
+# Ahead of you lies a single door... but perhaps you should look around first?""")
+    scene_one(player)
 
 
-# def scene_one():
-#     print("""
-#     What do you do?
-#     (E.g. Look around/Open Door/Inventory)
-#     """)
-#     answer = ''
-#     while (answer == ''):
-#         answer = input('\n').lower()
-#         if 'look around' in answer and torch not in player.inventory:
-#             cellar.get_inventory()
-#             time.sleep(2)
-#             scene_one()
-#         elif answer == 'look around' and torch in player.inventory:
-#             print('\nYou see the soot from where the torch used to be.')
-#             time.sleep(2)
-#             scene_one()
-#         elif 'torch' in answer and torch not in player.inventory:
-#             print('\nYou pick up the torch.')
-#             player.update_inventory(torch)
-#             time.sleep(2)
-#             scene_one()
-#         elif answer == 'inventory':
-#             player.get_inventory()
-#             time.sleep(2)
-#             scene_one()
-#         elif 'equip' in answer:
-#             pickup = input('\nWhat item would you like to equip?\n')
-#             player.equip(pickup)
-#             scene_one()
-#         elif answer == 'stay here':
-#             print('\nYou patiently wait and die of hunger. Please restart.')
-#             break
-#         elif answer == 'quit':
-#             print('\nThe Rose awaits your next attempt.')
-#             break
-#         elif answer == 'open door':
-#             print('Next Scene')
-#             break
-#         else:
-#             print('\nYou cannot do that.')
-#             time.sleep(2)
-#             scene_one()
-
-
-# time.sleep(2)
-
-# player = Player(input('Enter your name, Hero: '), 100, [], hands)
-
-# time.sleep(2)
-
-# print(f'\nAh, {player.name}, a fine name for a valiant Knight.\n')
-
-# time.sleep(2)
-
-# print("""
-#     You stand in a single square room of a sprawling dungeon. 
-#     You were told at the end of this dungeon, 
-#     a secret passage can be found 
-#     leading directly to the throne room of Caslte Rosebush, 
-#     where the Rose is held.
-#     Ahead of you, there is a door.
-#     """)
-
-# scene_one()
+main()
