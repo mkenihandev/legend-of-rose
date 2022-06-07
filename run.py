@@ -1,11 +1,10 @@
 # Your code goes here.
 # You can delete these comments, but do not change the name of this file
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
+import time
+
 import os
 os.system('cls' if os.name == 'nt' else 'clear')
-
-
-import time
 
 
 # -------------------------------------------- Classes ---------------------------------
@@ -72,14 +71,29 @@ class Item(object):
         self.modifier = modifier
 
 
-class Human(object):
+class Enemy(object):
     """
-    Creates instance of Human
+    Creates instance of Enemy
     """
-    def __init__(self, name, health, turn):
+    def __init__(self, name, health, damage, turn, loot):
         self.name = name
         self.health = health
+        self.damage = damage
         self.turn = turn
+        self.loot = loot
+
+    def get_loot(self):
+        """
+        Prints everything in enemy inventory
+        """
+        if self.loot == []:
+            print('nothing.')
+        else:
+            for item in self.loot:
+                if isinstance(item, str):
+                    print(f'- A {item}')
+                else:
+                    print(f'- A {item.name}')
 
 
 # ---------------------------------------- Player Class ---------------------------------
@@ -131,7 +145,11 @@ class Player(object):
             print(f"\nStop!!! {target.name}'s already dead 😭")
 
     def pickup(self, item):
+        """
+        Checks room inventory for the item before allowing pickup of item
+        """
         if item in self.current_room.inventory:
+            print(f'\nYou pick up the {item.name}')
             self.update_inventory(item)
             self.current_room.remove_item(item)
         else:
@@ -146,7 +164,6 @@ class Player(object):
 
         for x in self.inventory:
             if item.lower() in x.name.lower():
-                self.update_inventory(self.equipped)
                 self.equipped = x
                 is_in = True
                 break
@@ -178,7 +195,7 @@ class Player(object):
                 self.inventory.remove(potion)
             elif self.health == self.max_health:
                 print('\nYou are already max health.')
-        else: 
+        else:
             print('\nYou do not have a health potion.')
 
 
@@ -209,7 +226,7 @@ def check_generics(player, choice, room, scene):
         room.get_inventory()
         time.sleep(1)
         loop_back(player, scene)
-    elif 'equip' in choice:
+    elif 'equip' in choice: # Raise with mentor, breaks open door
         os.system('clear')
         equipment = input('\nWhat item would you like to equip?\n')
         player.equip(equipment)
@@ -217,16 +234,14 @@ def check_generics(player, choice, room, scene):
         loop_back(player, scene)
     elif 'quit' in choice:
         quit()
-    else:
-        pass
 
 
 def menu():
     """
     Menu for the game, gives player chance to learn about the game before hopping in
     """
-    menu = True
-    while menu:
+    menu_screen = True
+    while menu_screen:
         os.system('clear')
         print("""
 Welcome Hero to The Legend of Rose.
@@ -244,7 +259,7 @@ I - Information
         while (answer == ''):
             answer = input('').lower()
             if 'p' in answer or 'play' in answer:
-                menu = False
+                menu_screen = False
             elif 'i' in answer or 'information' in answer:
                 print("""
 Play The Legend of Rose by typing whatever you like at given points.
@@ -261,36 +276,45 @@ The story is silly and not to be taken seriously, get silly with it!
 # --------------------------------------- Combat ---------------------------------
 
 
-def combat(player, enemy):
+def combat(player, enemy, scene):
     """
     Combat function, does not break until player/ai hp is 0
     """
     while player.health and enemy.health > 0:
         if player.turn:
-            print(f'The {enemy.name} is in front of you. What do you do?')
+            print(f'\nThe {enemy.name} is in front of you. What do you do?')
             user_answer = input('\n').lower()
 
-            check_generics(player, user_answer, player.current_room, scene_one)
+            os.system('clear')
+
+            check_generics(player, user_answer, player.current_room, scene)
 
             if 'attack' in user_answer:
                 player.attack(enemy)
-                print(f'{enemy.name} health is now {enemy.health}')
+                print(f'\n{enemy.name} health is now {enemy.health}')
                 player.turn = False
             elif 'heal' in user_answer:
                 player.heal()
                 player.turn = False
             elif 'kiss' in user_answer:
-                print(f'You kiss the {enemy.name}, for a brief second they fall in love with you. As a consequence they take some damage and lose a turn.')
+                print(f'\nYou kiss the {enemy.name}, for a brief second they fall in love with you. As a consequence they take some damage and lose a turn.')
                 enemy.health -= 10
-                print(f'{enemy.name} health is now {enemy.health}')
+                print(f'\n{enemy.name} health is now {enemy.health}')
                 player.turn = True
         else:
-            damage = 10
+            damage = enemy.damage
             print(f'\nThe {enemy.name} attacks you for {damage} health')
             player.health -= damage
             time.sleep(1)
             print(f'\nYour health is now {player.health}')
             player.turn = True
+
+    if player.health > 0:
+        print(f'\nYou defeated the {enemy.name}, congratulations!')
+        print('They drop:')
+        enemy.get_loot()
+    else:
+        print('You have died. Restart.')
 
 
 # --------------------------------------- Object definitions ---------------------------------
@@ -309,9 +333,11 @@ potion = Item('Health Potion', 20)
 
 armor = Item('Armor', 50)
 
-bandit = Human('Bandit', 100, False)
+bandit = Enemy('Bandit', 15, 10, False, [potion, sword])
 
-cellar = Room('Cellar', [torch], 'small', 3)
+cellar = Room('Cellar', [torch], 'small', 1)
+
+storage = Room('Storage Room', [bandit, potion], 'small', 1)
 
 
 # --------------------------------------- Main Game Scenarios ---------------------------------
@@ -343,6 +369,26 @@ def scene_one(player):
             time.sleep(2)
             scene_one(player)
 
+
+def scene_two(player):
+    """
+    Second scene, storage room
+    """
+    player.current_room = storage
+    combat(player, bandit, scene_two)
+    print('What do you do?')
+    answer = ''
+    while (answer == ''):
+        answer = input('\n').lower()
+        check_generics(player, answer, storage, scene_two)
+        if answer == 'open door':
+            print('Next Scene')
+        else:
+            print('\nYou cannot do that.')
+            time.sleep(2)
+            scene_two(player)
+
+
 # --------------------------------------- Main Game ---------------------------------
 
 
@@ -352,14 +398,18 @@ def main():
     """
     # menu()
     # os.system('clear')
-    player = Player(input('\nWhat is your name, Hero?'), 80, 100, [], hands, True, cellar)
-    # print(f'\nAh, {player.name}, a fine name for a budding adventurer.')
-    # time.sleep(2)
+    player = Player(input('\nWhat is your name, Hero?'), 100, 100, [], hands, True, cellar)
+#     print(f'\nAh, {player.name}, a fine name for a budding adventurer.')
+#     time.sleep(2)
 #     print("""\nYou find yourself in a dimly lit cellar.
 # You have been told this cellar leads to a secret passage directly to the Throne Room
 # of Castle Rose.
 # Ahead of you lies a single door... but perhaps you should look around first?""")
-    scene_one(player)
+#     scene_one(player)
+    os.system('clear')
+    print("""You open the door to a storage room.
+At first, everything seems normal, but suddenly a bandit jumps out at you!""")
+    scene_two(player)
 
 
 main()
