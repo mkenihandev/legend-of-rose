@@ -298,11 +298,6 @@ def combat(player, enemy, scene):
             elif 'heal' in user_answer:
                 player.heal()
                 player.turn = False
-            elif 'kiss' in user_answer:
-                print(f'\nYou kiss the {enemy.name}, for a brief second they fall in love with you. As a consequence they take some damage and lose a turn.')
-                enemy.health -= 10
-                print(f'\n{enemy.name} health is now {enemy.health}')
-                player.turn = True
         else:
             damage = enemy.damage
             print(f'\nThe {enemy.name} attacks you for {damage} health')
@@ -395,9 +390,16 @@ def scene_two(player):
     answer = ''
     while (answer == ''):
         answer = input('\n').lower()
-        check_generics(player, answer, storage, scene_two)
-        if answer == 'open door':
-            print('Next Scene')
+        check_generics(player, answer, storage, scene_two) # Add picking up ability
+        if 'wall' in answer:
+            print("""\nYou break down the fragile wall to reveal a 
+passage to a large dungeon.
+You get the eery feeling you're in for it now.""")
+            quit()
+        elif 'loot' in answer:
+            player.pickup(sword)
+            player.pickup(potion)
+            scene_two(player)
         else:
             print('\nYou cannot do that.')
             time.sleep(2)
