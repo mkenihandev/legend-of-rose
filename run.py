@@ -327,17 +327,25 @@ sword = Weapon('Sword', 35)
 
 axe = Weapon('Axe', 50)
 
+excalibur = Weapon('Excalibur', 75)
+
 bomb = Weapon('Bomb', 100)
 
-potion = Item('Health Potion', 20)
+potion = Item('Health Potion', 35)
 
 armor = Item('Armor', 50)
 
-bandit = Enemy('Bandit', 15, 10, False, [potion, sword])
+injured_bandit = Enemy('Bandit', 25, 10, False, [potion, sword])
+
+bandit = Enemy('Bandit', 50, 15, False, [potion, bomb])
+
+small_ogre = Enemy('Small Ogre', 100, 30, False, [axe, potion, potion])
+
+mother_ogre = Enemy('Mother Ogre', 150, 45, False, [potion, potion, potion, bomb])
 
 cellar = Room('Cellar', [torch], 'small', 1)
 
-storage = Room('Storage Room', [bandit, potion], 'small', 1)
+storage = Room('Storage Room', [injured_bandit, potion], 'small', 1)
 
 
 # --------------------------------------- Main Game Scenarios ---------------------------------
@@ -375,7 +383,7 @@ def scene_two(player):
     Second scene, storage room
     """
     player.current_room = storage
-    combat(player, bandit, scene_two)
+    combat(player, injured_bandit, scene_two)
     print('What do you do?')
     answer = ''
     while (answer == ''):
