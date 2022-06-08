@@ -42,3 +42,8 @@ Picking items up should be the same idea for a few different things, like equipp
 <img src="wireframes/combat.PNG">
 
 <img src="wireframes/dungeon-layout.PNG">
+
+## Testing and Bug Solving
+<hr>
+
+- Equip skip bug

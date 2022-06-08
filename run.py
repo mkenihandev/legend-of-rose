@@ -346,11 +346,13 @@ small_ogre = Enemy('Small Ogre', 100, 30, False, [axe, potion, potion])
 
 mother_ogre = Enemy('Mother Ogre', 150, 45, False, [potion, potion, potion, bomb])
 
-cellar = Room('Cellar', [torch], 'small', 1, 'The room is dimly lit by something.')
+cellar = Room('Cellar', [torch], 'small', 1, '\nThe room is dimly lit by something.')
 
 storage = Room('Storage Room', [injured_bandit, potion], 'small', 1, '\nAt the back of the room there appears to be a shattered wall, \nleading to a passage')
 
 dungeon = Room('Dungeon', [bandit, potion, potion], 'small', 1, "\nThe dungeon reeks of various different bodily fluids. \nPerhaps it's best you don't ask. \nAhead you see the stairs out, but to the left a board covering the entrance to some side room.")
+
+dungeon_side = Room('Dungeon Storage', [bomb, potion, armor], 'small', 1, '\nThe room seems to host many broken pieces of clothes and armor. Some may still be useable...')
 
 # --------------------------------------- Main Game Scenarios ---------------------------------
 
@@ -437,12 +439,34 @@ It appears to be a room for stashing the various pieces of armor from the
 aforementioned bodies.""")
             quit()
         elif 'back' in answer:
-            print('You make your way back to the previous room')
-            scene_two(player)
+            print('\nYou make your way back to the previous room')
+            scene_two(player) # Not working, need to return to a point in the main() loop
         else:
             print('\nYou cannot do that.')
             time.sleep(2)
             scene_three_room_one(player)
+
+
+def scene_three_room_two(player):
+    """
+    Third scene, side room
+    """
+    player.current_room = dungeon_side
+    print('What do you do?')
+    answer = ''
+    while (answer == ''):
+        answer = input('\n').lower()
+        check_generics(player, answer, dungeon, scene_two)
+        if 'loot' in answer:
+            print('\nYou grab what seems functional still')
+            player.pickup(armor)
+            player.pickup(potion)
+            player.pickup(bomb)
+        else:
+            print('\nYou cannot do that. Try looting?')
+            time.sleep(2)
+            scene_three_room_one(player)
+        
 
 
 
@@ -464,7 +488,7 @@ def main():
 # Ahead of you lies a single door... but perhaps you should look around first?""")
 #     scene_one(player)
 #     os.system('clear')
-#     print("""You open the door to a storage room.
+#     print("""\nYou open the door to a storage room.
 # At first, everything seems normal, but suddenly an injured bandit approaches you.
 # 'That Rose is mine, Hero, give it 'ere'""")
     scene_two(player)
