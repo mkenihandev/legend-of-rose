@@ -228,12 +228,12 @@ def check_generics(player, choice, room, scene):
         room.get_inventory()
         time.sleep(1)
         loop_back(player, scene)
-    elif 'equip' in choice: # Raise with mentor, breaks open door
+    elif 'equip' in choice:  # Raise with mentor, breaks open door
         os.system('clear')
         equipment = input('\nWhat item would you like to equip?\n')
         player.equip(equipment)
         time.sleep(1)
-        loop_back(player, scene)
+        loop_back(player, scene)    
     elif 'quit' in choice:
         quit()
 
@@ -340,7 +340,7 @@ armor = Item('Armor', 50)
 
 injured_bandit = Enemy('Bandit', 10, 10, False, [potion, sword])
 
-bandit = Enemy('Bandit', 50, 15, False, [potion, bomb])
+bandit = Enemy('Bandit', 10, 15, False, [potion, bomb])
 
 small_ogre = Enemy('Small Ogre', 100, 30, False, [axe, potion, potion])
 
@@ -427,7 +427,7 @@ def scene_three_room_one(player):
     answer = ''
     while (answer == ''):
         answer = input('\n').lower()
-        check_generics(player, answer, dungeon, scene_two)
+        check_generics(player, answer, dungeon, scene_three_room_one)
         if 'stairs' in answer:
             print("""\nYou approach the stairs and climb it step by step.
 What you see at the top seems to be the Dining Hall for castle staff. 
@@ -436,38 +436,24 @@ A foul smell fills the air, something has been living here...""")
         elif 'board' in answer:
             print("""\nYou move the board out of the way and step inside.
 It appears to be a room for stashing the various pieces of armor from the 
-aforementioned bodies.""")
-            quit()
+aforementioned bodies.
+A bunch of clothes and broken armor spill out on to the floor.""")
+            player.current_room.inventory.append(armor)
+            player.current_room.inventory.append(potion)
+            player.current_room.inventory.append(bomb)
+        elif 'loot' in answer:
+            if dungeon.inventory == []:
+                print('There are no items left in the room.')
+            else:
+                for item in dungeon.inventory:  # should loop through every item in room and add to inventory, pickup() also removes from room inventory
+                    player.pickup(item)
         elif 'back' in answer:
             print('\nYou make your way back to the previous room')
-            scene_two(player) # Not working, need to return to a point in the main() loop
+            scene_two(player)  # Not working, need to return to a point in the main() loop
         else:
             print('\nYou cannot do that.')
             time.sleep(2)
             scene_three_room_one(player)
-
-
-def scene_three_room_two(player):
-    """
-    Third scene, side room
-    """
-    player.current_room = dungeon_side
-    print('What do you do?')
-    answer = ''
-    while (answer == ''):
-        answer = input('\n').lower()
-        check_generics(player, answer, dungeon, scene_two)
-        if 'loot' in answer:
-            print('\nYou grab what seems functional still')
-            player.pickup(armor)
-            player.pickup(potion)
-            player.pickup(bomb)
-        else:
-            print('\nYou cannot do that. Try looting?')
-            time.sleep(2)
-            scene_three_room_one(player)
-        
-
 
 
 # --------------------------------------- Main Game ---------------------------------
@@ -480,23 +466,25 @@ def main():
     menu()
     os.system('clear')
     player = Player(input('\nWhat is your name, Hero?'), 100, 100, [], hands, True, cellar)
-#     print(f'\nAh, {player.name}, a fine name for a budding adventurer.')
-#     time.sleep(2)
-#     print("""\nYou find yourself in a dimly lit cellar.
-# You have been told this cellar leads to a secret passage directly to the Throne Room
-# of Castle Rose.
-# Ahead of you lies a single door... but perhaps you should look around first?""")
-#     scene_one(player)
-#     os.system('clear')
-#     print("""\nYou open the door to a storage room.
-# At first, everything seems normal, but suddenly an injured bandit approaches you.
-# 'That Rose is mine, Hero, give it 'ere'""")
+    print(f'\nAh, {player.name}, a fine name for a budding adventurer.')
+    time.sleep(2)
+    print("""\nYou find yourself in a dimly lit cellar.
+You have been told this cellar leads to a secret passage directly to the Throne Room
+of Castle Rose.
+Ahead of you lies a single door... but perhaps you should look around first?""")
+    time.sleep(2)
+    scene_one(player)
+    os.system('clear')
+    print("""\nYou open the door to a storage room.
+At first, everything seems normal, but suddenly an injured bandit approaches you.
+'That Rose is mine, Hero, give it 'ere'""")
+    time.sleep(2)
     scene_two(player)
     print("""\nYou enter what seems to be an old torture chamber.
 Partially regretting ever setting out on this mission you step a ways in.
 From behind one of the various horrific devices, a Bandit jumps out and swiped at you.
 He missed, but you know there's no talking your way out of this one.""")
-    time.sleep(5)
+    time.sleep(2)
     scene_three_room_one(player)
 
 
