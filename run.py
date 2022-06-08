@@ -338,7 +338,7 @@ potion = Item('Health Potion', 35)
 
 armor = Item('Armor', 50)
 
-injured_bandit = Enemy('Bandit', 10, 10, False, [potion, sword])
+injured_bandit = Enemy('Injured Bandit', 10, 10, False, [potion, sword])
 
 bandit = Enemy('Bandit', 10, 15, False, [potion, bomb])
 
@@ -465,7 +465,7 @@ def main():
     """
     menu()
     os.system('clear')
-    player = Player(input('\nWhat is your name, Hero?'), 100, 100, [], hands, True, cellar)
+    player = Player(input('\nWhat is your name, Hero?\n'), 100, 100, [], hands, True, cellar)
     print(f'\nAh, {player.name}, a fine name for a budding adventurer.')
     time.sleep(2)
     print("""\nYou find yourself in a dimly lit cellar.
