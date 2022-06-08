@@ -307,6 +307,7 @@ def combat(player, enemy, scene):
             player.turn = True
 
     if player.health > 0 and enemy in player.current_room.inventory:
+        player.turn = True
         print(f'\nYou defeated the {enemy.name}, congratulations!')
         print('They drop:')
         enemy.get_loot()
@@ -349,6 +350,7 @@ cellar = Room('Cellar', [torch], 'small', 1, 'The room is dimly lit by something
 
 storage = Room('Storage Room', [injured_bandit, potion], 'small', 1, '\nAt the back of the room there appears to be a shattered wall, \nleading to a passage')
 
+dungeon = Room('Dungeon', [bandit, potion, potion], 'small', 1, "\nThe dungeon reeks of various different bodily fluids. \nPerhaps it's best you don't ask. \nAhead you see the stairs out, but to the left a board covering the entrance to some side room.")
 
 # --------------------------------------- Main Game Scenarios ---------------------------------
 
@@ -357,6 +359,7 @@ def scene_one(player):
     """
     First scene, cellar
     """
+    player.current_room = cellar
     print("""
     What do you do?
     (E.g. Look around/Open Door/Inventory)
@@ -395,15 +398,52 @@ def scene_two(player):
             print("""\nYou break down the fragile wall to reveal a 
 passage to a large dungeon.
 You get the eery feeling you're in for it now.""")
-            quit()
+            break
         elif 'loot' in answer:
             player.pickup(sword)
             player.pickup(potion)
             scene_two(player)
+        elif 'back' in answer:
+            print('You make your way back to the previous room')
+            scene_one(player)
+        elif 'potion' in answer:
+            player.pickup(potion)
+            scene_one(player)
         else:
             print('\nYou cannot do that.')
             time.sleep(2)
             scene_two(player)
+
+
+def scene_three_room_one(player):
+    """
+    Third Scene, dungeon, small again but side room too
+    """
+    player.current_room = dungeon
+    combat(player, bandit, scene_three_room_one)
+    print('What will you do?')
+    answer = ''
+    while (answer == ''):
+        answer = input('\n').lower()
+        check_generics(player, answer, dungeon, scene_two)
+        if 'stairs' in answer:
+            print("""\nYou approach the stairs and climb it step by step.
+What you see at the top seems to be the Dining Hall for castle staff. 
+A foul smell fills the air, something has been living here...""")
+            quit()
+        elif 'board' in answer:
+            print("""\nYou move the board out of the way and step inside.
+It appears to be a room for stashing the various pieces of armor from the 
+aforementioned bodies.""")
+            quit()
+        elif 'back' in answer:
+            print('You make your way back to the previous room')
+            scene_two(player)
+        else:
+            print('\nYou cannot do that.')
+            time.sleep(2)
+            scene_three_room_one(player)
+
 
 
 # --------------------------------------- Main Game ---------------------------------
@@ -413,8 +453,8 @@ def main():
     """
     Main game function
     """
-    # menu()
-    # os.system('clear')
+    menu()
+    os.system('clear')
     player = Player(input('\nWhat is your name, Hero?'), 100, 100, [], hands, True, cellar)
 #     print(f'\nAh, {player.name}, a fine name for a budding adventurer.')
 #     time.sleep(2)
@@ -423,10 +463,17 @@ def main():
 # of Castle Rose.
 # Ahead of you lies a single door... but perhaps you should look around first?""")
 #     scene_one(player)
-    os.system('clear')
-    print("""You open the door to a storage room.
-At first, everything seems normal, but suddenly a bandit jumps out at you!""")
+#     os.system('clear')
+#     print("""You open the door to a storage room.
+# At first, everything seems normal, but suddenly an injured bandit approaches you.
+# 'That Rose is mine, Hero, give it 'ere'""")
     scene_two(player)
+    print("""\nYou enter what seems to be an old torture chamber.
+Partially regretting ever setting out on this mission you step a ways in.
+From behind one of the various horrific devices, a Bandit jumps out and swiped at you.
+He missed, but you know there's no talking your way out of this one.""")
+    time.sleep(5)
+    scene_three_room_one(player)
 
 
 main()
