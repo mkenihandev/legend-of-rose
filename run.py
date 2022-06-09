@@ -7,7 +7,7 @@ import os
 os.system('cls' if os.name == 'nt' else 'clear')
 
 
-# -------------------------------------------- Classes ---------------------------------
+# -------------------------------------------- Classes -----------------------
 
 
 class Room(object):
@@ -98,7 +98,7 @@ class Enemy(object):
                     print(f'- A {item.name}')
 
 
-# ---------------------------------------- Player Class ---------------------------------
+# ---------------------------------------- Player Class ----------------------
 
 
 class Player(object):
@@ -146,14 +146,14 @@ class Player(object):
         else:
             print(f"\nStop!!! {target.name}'s already dead 😭")
 
-    def pickup(self, item):
+    def pickup(self, item, room):
         """
         Checks room inventory for the item before allowing pickup of item
         """
-        if item in self.current_room.inventory:
+        if item in room.inventory:
             print(f'\nYou pick up the {item.name}')
             self.update_inventory(item)
-            self.current_room.remove_item(item)
+            room.remove_item(item)
         else:
             print('You already have that.')
 
@@ -218,22 +218,26 @@ def check_generics(player, choice, room, scene):
     Checks for generic choices the player can do in any scenario/room
     """
     if 'inventory' in choice:
-        os.system('clear')
         player.get_inventory()
         time.sleep(3)
         loop_back(player, scene)
-    elif 'look around' in choice:
-        os.system('clear')
+    elif 'look' in choice:
         room.description()
         room.get_inventory()
         time.sleep(3)
         loop_back(player, scene)
-    elif 'equip' in choice:  # Raise with mentor, breaks open door
+    elif 'pick up' in choice:
+        for item in room.inventory:
+            player.pickup(item, room)
+        if room.inventory == []:
+            print('There is nothing left in the room')
+        loop_back(player, scene)
+    elif 'equip' in choice:
         os.system('clear')
         equipment = input('\nWhat item would you like to equip?\n')
         player.equip(equipment)
         time.sleep(1)
-        loop_back(player, scene)    
+        loop_back(player, scene)
     elif 'quit' in choice:
         quit()
 
@@ -345,20 +349,33 @@ injured_bandit = Enemy('Injured Bandit', 10, 10, False, [potion, sword])
 
 bandit = Enemy('Bandit', 10, 15, False, [potion, bomb])
 
+fat_bandit = Enemy('Fat Bandit', 10, 20, False, [armor])
+
 small_ogre = Enemy('Small Ogre', 100, 30, False, [axe, potion, potion])
 
-mother_ogre = Enemy('Mother Ogre', 150, 45, False, [potion, potion, potion, bomb])
+mother_ogre = Enemy('Mother Ogre', 150, 45, False,
+                    [potion, potion, potion, bomb])
 
-cellar = Room('Cellar', [torch], 'small', 1,
+final_boss = Enemy('Mergo, Guardian of the Rose', 300, 60, False, [])
+
+cellar = Room('Cellar', [torch, potion, potion, potion, potion], 'small', 1,
               '\nThe room is dimly lit by something.')
 
 storage = Room('Storage Room', [injured_bandit, potion], 'small', 1,
-               '\nAt the back of the room there appears to be a shattered wall, \nleading to a passage')
+               "\nAt the back of the room there appears"
+               " to be a shattered wall,"
+               "\nleading to a passage")
 
-dungeon = Room('Dungeon', [bandit, potion, potion], 'small', 1, 
-                "\nThe dungeon reeks of various different bodily fluids. \nPerhaps it's best you don't ask. \nAhead you see the stairs out, but to the left a board covering the entrance to some side room.")
+dungeon = Room('Dungeon', [bandit, potion, potion], 'small', 1,
+               "\nThe dungeon reeks of various different bodily fluids."
+               "\nPerhaps it's best you don't ask."
+               "\nAhead you see the stairs out,"
+               " but to the left a board covering the entrance to"
+               " some side room.")
 
-dungeon_side = Room('Dungeon Storage', [bomb, potion, armor], 'small', 1, '\nThe room seems to host many broken pieces of clothes and armor. Some may still be useable...')
+dining_hall_one = Room('Foyer Entrance', [fat_bandit], 'medium', 2,
+                 "The Foyer opens up to reveal a sizeable room,"
+                 "seperated seemingly in half by a large curtain.")
 
 # --------------------------------------- Main Game Scenarios ---------------------------------
 
@@ -380,6 +397,7 @@ def scene_one(player):
             print('\nYou patiently wait and die of hunger. Please restart.')
             quit()
         elif answer == 'open door':
+            os.system('clear')
             scene_two(player)
         elif 'torch' in answer:
             player.pickup(torch)
@@ -394,10 +412,10 @@ def scene_two(player):
     """
     Second scene, storage room
     """
-    os.system('clear')
     print("""\nYou open the door to the storage room.""")
     if injured_bandit in storage.inventory:
-        print("""\nAt first, everything seems normal, but suddenly an injured bandit approaches you.
+        print("""\nAt first, everything seems normal, but suddenly an injured
+        bandit approaches you.
 'That Rose is mine, Hero, give it 'ere'""")
     else:
         pass
@@ -407,16 +425,13 @@ def scene_two(player):
     answer = ''
     while (answer == ''):
         answer = input('\n').lower()
-        check_generics(player, answer, storage, scene_two) # Add picking up ability
+        check_generics(player, answer, storage, scene_two)  # Add picking up
+        # ability
         if 'wall' in answer:
-            print("""\nYou break down the fragile wall to reveal a 
+            print("""\nYou break down the fragile wall to reveal a
 passage to a large dungeon.
 You get the eery feeling you're in for it now.""")
-            scene_three_room_one(player)
-        elif 'loot' in answer:
-            player.pickup(sword)
-            player.pickup(potion)
-            scene_two(player)
+            scene_three(player)
         elif 'back' in answer:
             print('You make your way back to the previous room')
             scene_one(player)
@@ -429,43 +444,57 @@ You get the eery feeling you're in for it now.""")
             scene_two(player)
 
 
-def scene_three_room_one(player):
+def scene_three(player):
     """
     Third Scene, dungeon, small again but side room too
     """
     player.current_room = dungeon
-    combat(player, bandit, scene_three_room_one)
+    print("""\nYou enter what seems to be an old torture chamber.
+Partially regretting ever setting out on this mission you step a ways in.""")
+    if bandit in dungeon.inventory:
+        print("From behind one of the various horrific devices,"
+              " a Bandit jumps out and swiped at you."
+              "He missed, but you know there's no talking your"
+              " way out of this one.")
+    else:
+        pass
+    combat(player, bandit, scene_three)
     print('What will you do?')
     answer = ''
     while (answer == ''):
         answer = input('\n').lower()
-        check_generics(player, answer, dungeon, scene_three_room_one)
+        check_generics(player, answer, dungeon, scene_three)
         if 'stairs' in answer:
             print("""\nYou approach the stairs and climb it step by step.
-What you see at the top seems to be the Dining Hall for castle staff. 
+What you see at the top seems to be the Dining Hall for castle staff.
 A foul smell fills the air, something has been living here...""")
             quit()
         elif 'board' in answer:
             print("""\nYou move the board out of the way and step inside.
-It appears to be a room for stashing the various pieces of armor from the 
+It appears to be a room for stashing the various pieces of armor from the
 aforementioned bodies.
 A bunch of clothes and broken armor spill out on to the floor.""")
             player.current_room.inventory.append(armor)
             player.current_room.inventory.append(potion)
             player.current_room.inventory.append(bomb)
-        elif 'loot' in answer:
-            if dungeon.inventory == []:
-                print('There are no items left in the room.')
-            else:
-                for item in dungeon.inventory:  # should loop through every item in room and add to inventory, pickup() also removes from room inventory
-                    player.pickup(item)
         elif 'back' in answer:
             print('\nYou make your way back to the previous room')
-            scene_two(player)  # Not working, need to return to a point in the main() loop
+            scene_two(player)
         else:
             print('\nYou cannot do that.')
             time.sleep(2)
-            scene_three_room_one(player)
+            scene_three(player)
+
+
+def scene_four_sect_one(player):
+    """
+    Scene four, medium room with two sections, side room
+    """
+    player.current_room = dining_hall_one
+    if fat_bandit in dining_hall_one.inventory:
+        print("A very large bandit sitting at one of the many tables,"
+              " looks up from the meal he was eating directly at you")
+    combat(player, bandit, scene_four_sect_one)
 
 
 # --------------------------------------- Main Game ---------------------------------
@@ -486,12 +515,6 @@ of Castle Rose.
 Ahead of you lies a single door... but perhaps you should look around first?""")
     time.sleep(2)
     scene_one(player)
-#     print("""\nYou enter what seems to be an old torture chamber.
-# Partially regretting ever setting out on this mission you step a ways in.
-# From behind one of the various horrific devices, a Bandit jumps out and swiped at you.
-# He missed, but you know there's no talking your way out of this one.""")
-    # time.sleep(2)
-    # scene_three_room_one(player)
 
 
 main()
