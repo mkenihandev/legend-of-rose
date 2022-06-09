@@ -47,3 +47,6 @@ Picking items up should be the same idea for a few different things, like equipp
 <hr>
 
 - Equip skip bug
+
+
+- going back complicated

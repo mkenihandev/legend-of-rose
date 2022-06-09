@@ -220,13 +220,13 @@ def check_generics(player, choice, room, scene):
     if 'inventory' in choice:
         os.system('clear')
         player.get_inventory()
-        time.sleep(1)
+        time.sleep(3)
         loop_back(player, scene)
     elif 'look around' in choice:
         os.system('clear')
         room.description()
         room.get_inventory()
-        time.sleep(1)
+        time.sleep(3)
         loop_back(player, scene)
     elif 'equip' in choice:  # Raise with mentor, breaks open door
         os.system('clear')
@@ -240,7 +240,8 @@ def check_generics(player, choice, room, scene):
 
 def menu():
     """
-    Menu for the game, gives player chance to learn about the game before hopping in
+    Menu for the game, gives player chance to learn about the game before
+    hopping in
     """
     menu_screen = True
     while menu_screen:
@@ -275,7 +276,7 @@ The story is silly and not to be taken seriously, get silly with it!
                 print("Back to Menu? (Any input)")
                 input('')
 
-# --------------------------------------- Combat ---------------------------------
+# --------------------------------------- Combat ----------------------------
 
 
 def combat(player, enemy, scene):
@@ -312,8 +313,10 @@ def combat(player, enemy, scene):
         print('They drop:')
         enemy.get_loot()
         for items in enemy.loot:
-            player.current_room.inventory.append(items) # adds loot from enemy to room pool
-        player.current_room.remove_item(enemy) # removes the enemy from room pool
+            player.current_room.inventory.append(items)  # adds loot from
+# enemy to room pool
+        player.current_room.remove_item(enemy)  # removes the enemy from
+# room pool
     elif player.health <= 0:
         print('You have died. Restart.')
     else:
@@ -346,11 +349,14 @@ small_ogre = Enemy('Small Ogre', 100, 30, False, [axe, potion, potion])
 
 mother_ogre = Enemy('Mother Ogre', 150, 45, False, [potion, potion, potion, bomb])
 
-cellar = Room('Cellar', [torch], 'small', 1, '\nThe room is dimly lit by something.')
+cellar = Room('Cellar', [torch], 'small', 1,
+              '\nThe room is dimly lit by something.')
 
-storage = Room('Storage Room', [injured_bandit, potion], 'small', 1, '\nAt the back of the room there appears to be a shattered wall, \nleading to a passage')
+storage = Room('Storage Room', [injured_bandit, potion], 'small', 1,
+               '\nAt the back of the room there appears to be a shattered wall, \nleading to a passage')
 
-dungeon = Room('Dungeon', [bandit, potion, potion], 'small', 1, "\nThe dungeon reeks of various different bodily fluids. \nPerhaps it's best you don't ask. \nAhead you see the stairs out, but to the left a board covering the entrance to some side room.")
+dungeon = Room('Dungeon', [bandit, potion, potion], 'small', 1, 
+                "\nThe dungeon reeks of various different bodily fluids. \nPerhaps it's best you don't ask. \nAhead you see the stairs out, but to the left a board covering the entrance to some side room.")
 
 dungeon_side = Room('Dungeon Storage', [bomb, potion, armor], 'small', 1, '\nThe room seems to host many broken pieces of clothes and armor. Some may still be useable...')
 
@@ -374,8 +380,7 @@ def scene_one(player):
             print('\nYou patiently wait and die of hunger. Please restart.')
             quit()
         elif answer == 'open door':
-            print('Next Scene')
-            break
+            scene_two(player)
         elif 'torch' in answer:
             player.pickup(torch)
             scene_one(player)
@@ -389,6 +394,13 @@ def scene_two(player):
     """
     Second scene, storage room
     """
+    os.system('clear')
+    print("""\nYou open the door to the storage room.""")
+    if injured_bandit in storage.inventory:
+        print("""\nAt first, everything seems normal, but suddenly an injured bandit approaches you.
+'That Rose is mine, Hero, give it 'ere'""")
+    else:
+        pass
     player.current_room = storage
     combat(player, injured_bandit, scene_two)
     print('What do you do?')
@@ -400,7 +412,7 @@ def scene_two(player):
             print("""\nYou break down the fragile wall to reveal a 
 passage to a large dungeon.
 You get the eery feeling you're in for it now.""")
-            break
+            scene_three_room_one(player)
         elif 'loot' in answer:
             player.pickup(sword)
             player.pickup(potion)
@@ -410,7 +422,7 @@ You get the eery feeling you're in for it now.""")
             scene_one(player)
         elif 'potion' in answer:
             player.pickup(potion)
-            scene_one(player)
+            scene_two(player)
         else:
             print('\nYou cannot do that.')
             time.sleep(2)
@@ -474,18 +486,12 @@ of Castle Rose.
 Ahead of you lies a single door... but perhaps you should look around first?""")
     time.sleep(2)
     scene_one(player)
-    os.system('clear')
-    print("""\nYou open the door to a storage room.
-At first, everything seems normal, but suddenly an injured bandit approaches you.
-'That Rose is mine, Hero, give it 'ere'""")
-    time.sleep(2)
-    scene_two(player)
-    print("""\nYou enter what seems to be an old torture chamber.
-Partially regretting ever setting out on this mission you step a ways in.
-From behind one of the various horrific devices, a Bandit jumps out and swiped at you.
-He missed, but you know there's no talking your way out of this one.""")
-    time.sleep(2)
-    scene_three_room_one(player)
+#     print("""\nYou enter what seems to be an old torture chamber.
+# Partially regretting ever setting out on this mission you step a ways in.
+# From behind one of the various horrific devices, a Bandit jumps out and swiped at you.
+# He missed, but you know there's no talking your way out of this one.""")
+    # time.sleep(2)
+    # scene_three_room_one(player)
 
 
 main()
