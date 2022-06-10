@@ -98,7 +98,7 @@ class Enemy(object):
                     print(f'- A {item.name}')
 
 
-# ---------------------------------------- Player Class ----------------------
+# ------------------------ Player Class ----------------------
 
 
 class Player(object):
@@ -106,7 +106,8 @@ class Player(object):
     Creates and instance of Player
     """
 
-    def __init__(self, name, health, max_health, inventory, equipped, turn, current_room):
+    def __init__(self, name, health, max_health, inventory,
+                 equipped, turn, current_room):
         self.name = name
         self.health = health
         self.inventory = inventory
@@ -136,13 +137,16 @@ class Player(object):
 
     def attack(self, target):
         """
-        Attack method, takes a target and applies damage using equipped weapon value
+        Attack method, takes a target and applies damage using
+        equipped weapon value
         """
         if target.health > 0:
-            print(f'\nYou attack the {target.name} with your {self.equipped.name}')
+            print(f'\nYou attack the {target.name} '
+                  f'with your {self.equipped.name}')
             target.health -= self.equipped.attack()
             time.sleep(1)
-            print(f"\nYou deal {self.equipped.damage} damage to the {target.name}")
+            print(f"\nYou deal {self.equipped.damage} "
+                  f"damage to the {target.name}")
         else:
             print(f"\nStop!!! {target.name}'s already dead 😭")
 
@@ -150,12 +154,9 @@ class Player(object):
         """
         Checks room inventory for the item before allowing pickup of item
         """
-        if item in room.inventory:
-            print(f'\nYou pick up the {item.name}')
-            self.update_inventory(item)
-            room.remove_item(item)
-        else:
-            print('You already have that.')
+        print(f'\nYou pick up the {item.name}')
+        self.update_inventory(item)
+        room.remove_item(item)
 
     def equip(self, item):
         """
@@ -188,12 +189,14 @@ class Player(object):
         if potion in self.inventory:
             if self.health <= 80:
                 self.health += potion.modifier
-                print(f'\nYou have healed for {potion.modifier} points! Your health is now {self.health}')
+                print(f'\nYou have healed for {potion.modifier} points!'
+                      f'Your health is now {self.health}')
                 self.inventory.remove(potion)
             elif self.health > 80 and self.health != 100:
                 health_to_add = (100 - self.health)
                 self.health += health_to_add
-                print(f'\nYou have healed for {health_to_add} points! Your health is now {self.health}')
+                print(f'\nYou have healed for {health_to_add} points!'
+                      f'Your health is now {self.health}')
                 self.inventory.remove(potion)
             elif self.health == self.max_health:
                 print('\nYou are already max health.')
@@ -201,7 +204,7 @@ class Player(object):
             print('\nYou do not have a health potion.')
 
 
-# ---------------------------------------- Base functions ---------------------------------
+# --------------------------- Base functions ------------------
 
 
 def loop_back(player, scene):
@@ -253,9 +256,9 @@ def menu():
         print("""
 Welcome Hero to The Legend of Rose.
 Your goal is to obtain the legendary Rose held in Castle Rosebush.
-Revered for it's incredible ability to flatter the one you love, 
+Revered for it's incredible ability to flatter the one you love,
 it is well guarded.
-You will face many challenges along the way, and the choices you make may 
+You will face many challenges along the way, and the choices you make may
 affect the outcome.\n""")
         print("""
 Type the corrosponding letter to choose:
@@ -263,14 +266,14 @@ P - Play
 I - Information
         """)
         answer = ''
-        while (answer == ''):
+        while answer == '':
             answer = input('').lower()
             if 'p' in answer or 'play' in answer:
                 menu_screen = False
             elif 'i' in answer or 'information' in answer:
                 print("""
 Play The Legend of Rose by typing whatever you like at given points.
-The system will determine if your input is valid and let you do certain 
+The system will determine if your input is valid and let you do certain
 actions.
 If there is something you cannot do, the system should tell you this.
 Combat is taken in turns with the AI.
@@ -327,7 +330,7 @@ def combat(player, enemy, scene):
         pass
 
 
-# --------------------------------------- Object definitions ---------------------------------
+# -------------- Object definitions -----------------
 
 hands = Weapon('Hands', 10)
 
@@ -374,10 +377,10 @@ dungeon = Room('Dungeon', [bandit, potion, potion], 'small', 1,
                " some side room.")
 
 dining_hall_one = Room('Foyer Entrance', [fat_bandit], 'medium', 2,
-                 "The Foyer opens up to reveal a sizeable room,"
-                 "seperated seemingly in half by a large curtain.")
+                       "The Foyer opens up to reveal a sizeable room,"
+                       "seperated seemingly in half by a large curtain.")
 
-# --------------------------------------- Main Game Scenarios ---------------------------------
+# ------------------------ Main Game Scenarios ----------------
 
 
 def scene_one(player):
@@ -494,10 +497,12 @@ def scene_four_sect_one(player):
     if fat_bandit in dining_hall_one.inventory:
         print("A very large bandit sitting at one of the many tables,"
               " looks up from the meal he was eating directly at you")
+    else:
+        pass
     combat(player, bandit, scene_four_sect_one)
 
 
-# --------------------------------------- Main Game ---------------------------------
+# --------------------------------------- Main Game --------------------------
 
 
 def main():
@@ -506,13 +511,15 @@ def main():
     """
     menu()
     os.system('clear')
-    player = Player(input('\nWhat is your name, Hero?\n'), 100, 100, [], hands, True, cellar)
+    player = Player(input('\nWhat is your name, Hero?\n'), 100, 100, [],
+                    hands, True, cellar)
     print(f'\nAh, {player.name}, a fine name for a budding adventurer.')
     time.sleep(2)
     print("""\nYou find yourself in a dimly lit cellar.
-You have been told this cellar leads to a secret passage directly to the Throne Room
-of Castle Rose.
-Ahead of you lies a single door... but perhaps you should look around first?""")
+You have been told this cellar leads to a secret passage
+directly to the Throne Room of Castle Rose.
+Ahead of you lies a single door... but perhaps you should
+look around first?""")
     time.sleep(2)
     scene_one(player)
 
