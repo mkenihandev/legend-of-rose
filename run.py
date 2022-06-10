@@ -1,6 +1,8 @@
-# Your code goes here.
-# You can delete these comments, but do not change the name of this file
-# Write your code to expect a terminal of 80 characters wide and 24 rows high
+"""
+This module is the Legend of Rose game in its entirety,
+from classes to scenarios
+"""
+
 import time
 
 import os
@@ -174,23 +176,23 @@ class Player(object):
         is_in = False
         is_tool_enemy = False
 
-        for x in self.inventory:
-            if item.lower() in x.name.lower():
-                if x.class_name == 'enemy' or x.class_name == 'tool':
+        for x_item in self.inventory:
+            if item.lower() in x_item.name.lower():
+                if x_item.class_name == 'enemy' or x_item.class_name == 'tool':
                     print('\nYou cannot equip this item.')
                     is_tool_enemy = True
-                elif x.class_name == 'armor':
+                elif x_item.class_name == 'armor':
                     self.max_health += 50
                     self.inventory.remove(armor)
                     is_in = True
                     break
                 else:
-                    self.equipped = x
+                    self.equipped = x_item
                     is_in = True
                     break
 
         if is_in:
-            print(f'\nYou have equipped the {x.name}')
+            print(f'\nYou have equipped the {x_item.name}')
         elif is_tool_enemy:
             pass
         else:
@@ -296,10 +298,10 @@ I - Information
                 print("""
 Play The Legend of Rose by typing whatever you like at given points.
 The system will determine if your input is valid and let you do certain
-actions.
+actions. (E.g. "attack", "look around", "break down wall")
 If there is something you cannot do, the system should tell you this.
 Combat is taken in turns with the AI.
-Refer to the README for a comprehensive list of """)
+Refer to the README for some guidance on actions you can take.""")
                 time.sleep(3)
                 print("\nBack to Menu? (Any input)")
                 input('')
@@ -427,7 +429,7 @@ def scene_one(player):
     (E.g. Look around/Open Door/Inventory)
     """)
     answer = ''
-    while (answer == ''):
+    while answer == '':
         answer = input('\n').lower()
         check_generics(player, answer, cellar, scene_one)
         if 'stay' in answer:
@@ -458,7 +460,7 @@ bandit approaches you.
     combat(player, injured_bandit, scene_two)
     print('What do you do?')
     answer = ''
-    while (answer == ''):
+    while answer == '':
         answer = input('\n').lower()
         check_generics(player, answer, storage, scene_two)  # Add picking up
         # ability
@@ -497,7 +499,7 @@ Partially regretting ever setting out on this mission you step a ways in.""")
     combat(player, bandit, scene_three)
     print('\nWhat will you do?')
     answer = ''
-    while (answer == ''):
+    while answer == '':
         answer = input('\n').lower()
         check_generics(player, answer, dungeon, scene_three)
         if 'stairs' in answer:
