@@ -326,7 +326,6 @@ def combat(player, enemy, scene):
                 player.turn = False
             elif 'heal' in user_answer:
                 player.heal()
-                player.turn = False
         else:
             damage = enemy.damage
             print(f'\nThe {enemy.name} attacks you for {damage} health')
@@ -376,13 +375,13 @@ note = Item('A note that reads: "Save your bombs for the end"', 0, 'tool')
 
 injured_bandit = Enemy('Injured Bandit', 15, 10, [potion], 'enemy')
 
-bandit = Enemy('Bandit', 30, 15, [potion, bomb, sword], 'enemy')
+bandit = Enemy('Bandit', 30, 15, [bomb, sword], 'enemy')
 
 fat_bandit = Enemy('Fat Bandit', 50, 20, [armor], 'enemy')
 
-small_ogre = Enemy('Small Ogre', 100, 25, [key, axe, potion, potion], 'enemy')
+small_ogre = Enemy('Small Ogre', 100, 25, [key, axe, potion], 'enemy')
 
-mother_ogre = Enemy('Mother Ogre', 150, 45, [potion, potion, potion, bomb],
+mother_ogre = Enemy('Mother Ogre', 150, 45, [potion, potion, bomb],
                     'enemy')
 
 final_boss = Enemy('Mergo, Guardian of the Rose', 300, 60, [], 'enemy')
@@ -395,7 +394,7 @@ storage = Room('Storage Room', [injured_bandit, potion], 'small', 1,
                " to be a shattered wall,"
                "\nleading to a passage")
 
-dungeon = Room('Dungeon', [bandit, potion, potion], 'small', 1,
+dungeon = Room('Dungeon', [bandit, potion], 'small', 1,
                "\nThe dungeon reeks of various different bodily fluids."
                "\nPerhaps it's best you don't ask."
                "\nAhead you see the stairs out,"
@@ -593,6 +592,7 @@ def main():
     player = Player(input('\nWhat is your name, Hero?\n'), 50, 100, [],
                     hands, True, cellar)
     print(f'\nAh, {player.name}, a fine name for a budding adventurer.')
+    print(f'\nAre you a good person, {player.name}?')
     time.sleep(2)
     print("""\nYou find yourself in a dimly lit cellar.
 You have been told this cellar leads to a secret passage

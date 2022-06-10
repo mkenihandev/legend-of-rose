@@ -43,10 +43,52 @@ Picking items up should be the same idea for a few different things, like equipp
 
 <img src="wireframes/dungeon-layout.PNG">
 
+## Features of the game
+
+The game features multiple different scenarios that get progressively more difficult, but reward players who explore their environments and are inquisitve about the game. The game can progress differently in a simple way just by whether or not the player decided to pick up the items in a room, or investigate a hidden room.
+
+* Menu 
+    - The Menu gives the player a very simple story and goal.
+    - Offers the player two options, P for play, or I for Information
+
+* Info
+    - Provides the player with guidance on how to play the game, in case they missed the README or simply could not access it.
+    - Gives some examples of actions the player can do
+
+* Inventory
+    - Shows the player their inventory, so they can keep track of the items they have acquired
+    - Tells the player their currently equipped weapon, max health, and current health.
+
+* Looking around
+    - At all points in the game the player can look around
+    - This tells the player what is in the rooms inventory, the size of the room and reads out the special flavor text assigned to the room
+
+* Combat
+    - Combat is turn based and so when a player attacks or heals, the enemy then gets a turn.
+    - The combat ends when either the player or the enemy is defeated.
+    - Loot from the enemy is added to the rooms inventory when they are defeated and as such the player can pick up the spoils.
+    
+* Future Features
+
 ## Testing and Bug Solving
 <hr>
 
+### Bugs I Solved
+
+This project honestly had a million tiny bugs here and there that were solved out and not worth mentioning in a commit. As such the below are the "largest" most memorable bugs I have had to squash.
+
 - Equip skip bug
+    - This bug was causing any action after equipping a weapon to tell the player "You can't do that", this was due to how the game was all run inside main() and as such after equipping an item, the player was sent back to scene_two for instance, but not within main()
+    - It was fixed by removing everything from main() and instead just using main() to start the game and get it set up for the player. The scenes then ran in to themselves.
 
+- Going back a room not working
+    - Going back a room was bugged out and acting strangely, similar to the last bug due to running a scene outside of main. Players would go from scene_two within main() to scene_one outside of main() and then enter scene_two again outside.
+    - Again, fixed by making main() the start of the game and nothing else.
 
-- going back complicated
+- Picking up items for loop
+    - A large snag my project had for a while was the ability to pick items up. I was initially working with a for loop that went through all the items in a room, and for each item in that room, passed it through the Player pickup() method. This however would only work for a certain number of items, and never the full number of items in the room.
+    - This was solved by instead introducing the .extend() method to the players inventory, from the room inventory, then removing all the items in the room subsequently. A simple but elegant solution I can thank Gemma from Code Institute for helping me solve.
+
+- The player was not able to die in combat
+    - Another snag for a little while was that the player was not able to die in combat. The combat code was written as ```while player.health and enemy.health > 0```.
+    - This was solved by the realization that this code was first testing if player.health was True. Any number, even a minus, would return True for this except for 0 and more often than not the player, if they died, were at a negative number. I simply changed the code to ```while player.health > 0 and enemy.health > 0```
