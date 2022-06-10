@@ -53,9 +53,10 @@ class Weapon(object):
     """
     Creates instance of Weapon
     """
-    def __init__(self, name, damage):
+    def __init__(self, name, damage, class_name):
         self.name = name
         self.damage = damage
+        self.class_name = class_name
 
     def attack(self):
         """
@@ -68,21 +69,22 @@ class Item(object):
     """
     Creates instance of Item
     """
-    def __init__(self, name, modifier):
+    def __init__(self, name, modifier, class_name):
         self.name = name
         self.modifier = modifier
+        self.class_name = class_name
 
 
 class Enemy(object):
     """
     Creates instance of Enemy
     """
-    def __init__(self, name, health, damage, turn, loot):
+    def __init__(self, name, health, damage, loot, class_name):
         self.name = name
         self.health = health
         self.damage = damage
-        self.turn = turn
         self.loot = loot
+        self.class_name = class_name
 
     def get_loot(self):
         """
@@ -164,15 +166,26 @@ class Player(object):
         Checks if item is in inventory first
         """
         is_in = False
+        is_tool_enemy = False
 
         for x in self.inventory:
             if item.lower() in x.name.lower():
-                self.equipped = x
-                is_in = True
-                break
+                if x.class_name == 'enemy' or x.class_name == 'tool':
+                    print('\nYou cannot equip this item.')
+                    is_tool_enemy = True
+                elif x.class_name == 'armor':
+                    self.max_health += 50
+                    self.inventory.remove(armor)
+                    is_in = True
+                else:
+                    self.equipped = x
+                    is_in = True
+                    break
 
         if is_in:
             print(f'\nYou have equipped the {x.name}')
+        elif is_tool_enemy:
+            pass
         else:
             print(f'\nYou do not have the {item}')
 
@@ -230,11 +243,18 @@ def check_generics(player, choice, room, scene):
         time.sleep(3)
         loop_back(player, scene)
     elif 'pick up' in choice:
-        for item in room.inventory:
-            player.pickup(item, room)
+        player.inventory.extend(room.inventory)
+        print('\nYou pick up all the items currently in the room')
+        room.inventory = []
         if room.inventory == []:
-            print('There is nothing left in the room')
+            print('\nThere is nothing left in the room')
         loop_back(player, scene)
+        # for item in room.inventory:
+        #     print(room.inventory)
+        #     player.pickup(item, room)
+        #     if room.inventory == []:
+        #         print('There is nothing left in the room')
+        #     loop_back(player, scene)
     elif 'equip' in choice:
         os.system('clear')
         equipment = input('\nWhat item would you like to equip?\n')
@@ -280,7 +300,7 @@ Combat is taken in turns with the AI.
 The story is silly and not to be taken seriously, get silly with it!
                 """)
                 time.sleep(3)
-                print("Back to Menu? (Any input)")
+                print("\nBack to Menu? (Any input)")
                 input('')
 
 # --------------------------------------- Combat ----------------------------
@@ -332,36 +352,40 @@ def combat(player, enemy, scene):
 
 # -------------- Object definitions -----------------
 
-hands = Weapon('Hands', 10)
+hands = Weapon('Hands', 10, 'weapon')
 
-torch = Weapon('Torch', 15)
+torch = Weapon('Torch', 15, 'weapon')
 
-sword = Weapon('Sword', 35)
+sword = Weapon('Sword', 35, 'weapon')
 
-axe = Weapon('Axe', 50)
+axe = Weapon('Axe', 50, 'weapon')
 
-excalibur = Weapon('Excalibur', 75)
+excalibur = Weapon('Excalibur', 75, 'weapon')
 
-bomb = Weapon('Bomb', 100)
+bomb = Weapon('Bomb', 100, 'weapon')
 
-potion = Item('Health Potion', 35)
+potion = Item('Health Potion', 35, 'tool')
 
-armor = Item('Armor', 50)
+armor = Item('Piece of Armor', 50, 'armor')
 
-injured_bandit = Enemy('Injured Bandit', 10, 10, False, [potion, sword])
+key = Item('Key', 0, 'tool')
 
-bandit = Enemy('Bandit', 10, 15, False, [potion, bomb])
+note = Item('A note that reads: "Save your bombs for the end"', 0, 'tool')
 
-fat_bandit = Enemy('Fat Bandit', 10, 20, False, [armor])
+injured_bandit = Enemy('Injured Bandit', 10, 10, [potion, sword], 'enemy')
 
-small_ogre = Enemy('Small Ogre', 100, 30, False, [axe, potion, potion])
+bandit = Enemy('Bandit', 10, 15, [potion, bomb], 'enemy')
 
-mother_ogre = Enemy('Mother Ogre', 150, 45, False,
-                    [potion, potion, potion, bomb])
+fat_bandit = Enemy('Fat Bandit', 10, 20, [armor], 'enemy')
 
-final_boss = Enemy('Mergo, Guardian of the Rose', 300, 60, False, [])
+small_ogre = Enemy('Small Ogre', 100, 30, [key, axe, potion, potion], 'enemy')
 
-cellar = Room('Cellar', [torch, potion, potion, potion, potion], 'small', 1,
+mother_ogre = Enemy('Mother Ogre', 150, 45, [potion, potion, potion, bomb],
+                    'enemy')
+
+final_boss = Enemy('Mergo, Guardian of the Rose', 300, 60, [], 'enemy')
+
+cellar = Room('Cellar', [torch, note, potion, bandit, armor], 'small', 1,
               '\nThe room is dimly lit by something.')
 
 storage = Room('Storage Room', [injured_bandit, potion], 'small', 1,
@@ -376,9 +400,18 @@ dungeon = Room('Dungeon', [bandit, potion, potion], 'small', 1,
                " but to the left a board covering the entrance to"
                " some side room.")
 
-dining_hall_one = Room('Foyer Entrance', [fat_bandit], 'medium', 2,
+dining_hall_one = Room('Dining Hall Entrance', [fat_bandit], 'medium', 2,
                        "The Foyer opens up to reveal a sizeable room,"
                        "seperated seemingly in half by a large curtain.")
+
+dining_hall_two = Room('Dining Hall Backroom', [small_ogre], 'medium',
+                       2, 'The Backroom is host to a sizeable amount'
+                       'of animal carcasses. Seems something has been feeding'
+                       'here.'
+                       "There appears to be a stairway to the Castle's main"
+                       "hall at the back of the room... but to the side a"
+                       "door. It appears to be locked."
+                       "Perhaps if you had a key?")
 
 # ------------------------ Main Game Scenarios ----------------
 
@@ -455,14 +488,14 @@ def scene_three(player):
     print("""\nYou enter what seems to be an old torture chamber.
 Partially regretting ever setting out on this mission you step a ways in.""")
     if bandit in dungeon.inventory:
-        print("From behind one of the various horrific devices,"
-              " a Bandit jumps out and swiped at you."
-              "He missed, but you know there's no talking your"
+        print("\nFrom behind one of the various horrific devices,"
+              " a Bandit jumps out and swipes at you."
+              " He missed, but you know there's no talking your"
               " way out of this one.")
     else:
         pass
     combat(player, bandit, scene_three)
-    print('What will you do?')
+    print('\nWhat will you do?')
     answer = ''
     while (answer == ''):
         answer = input('\n').lower()
@@ -471,7 +504,7 @@ Partially regretting ever setting out on this mission you step a ways in.""")
             print("""\nYou approach the stairs and climb it step by step.
 What you see at the top seems to be the Dining Hall for castle staff.
 A foul smell fills the air, something has been living here...""")
-            quit()
+            scene_four_sect_one(player)
         elif 'board' in answer:
             print("""\nYou move the board out of the way and step inside.
 It appears to be a room for stashing the various pieces of armor from the
@@ -480,6 +513,7 @@ A bunch of clothes and broken armor spill out on to the floor.""")
             player.current_room.inventory.append(armor)
             player.current_room.inventory.append(potion)
             player.current_room.inventory.append(bomb)
+            scene_three(player)
         elif 'back' in answer:
             print('\nYou make your way back to the previous room')
             scene_two(player)
@@ -491,12 +525,12 @@ A bunch of clothes and broken armor spill out on to the floor.""")
 
 def scene_four_sect_one(player):
     """
-    Scene four, medium room with two sections, 
+    Scene four, medium room with two sections,
     side room not accessible from section one
     """
     player.current_room = dining_hall_one
     if fat_bandit in dining_hall_one.inventory:
-        print("A very large bandit sitting at one of the many tables,"
+        print("\nA very large bandit sitting at one of the many tables,"
               " looks up from the meal he was eating directly at you."
               "He still looks hungry.")
     else:
@@ -504,17 +538,43 @@ def scene_four_sect_one(player):
     combat(player, bandit, scene_four_sect_one)
     print('What will you do?')
     answer = ''
-    while (answer == ''):
+    while answer == '':
         answer = input('\n').lower()
-        check_generics(player, answer, dungeon, scene_three)
+        check_generics(player, answer, dungeon, scene_four_sect_one)
         if 'curtain' in answer:
+            scene_four_sect_two(player)
 
 
-def scene_four_sect_two:
+def scene_four_sect_two(player):
     """
     Scene four, medium room with two sections.
     side room accesible in this section
     """
+    player.current_room = dining_hall_two
+    if small_ogre in dining_hall_two.inventory:
+        print('\nA small, yet towering Ogre turns from the corner it was'
+              "feeding in. Seems you're it's next meal.")
+    else:
+        pass
+    combat(player, small_ogre, scene_four_sect_two)
+    print('What do you do?')
+    answer = ''
+    while answer == '':
+        answer = input('\n').lower()
+        check_generics(player, answer, dungeon, scene_four_sect_one)
+        if 'stairs' in answer:
+            quit()
+        elif 'door' in answer:
+            if key in player.inventory:
+                print('\nYou push and twist the key in to the keyhole...')
+                time.sleep(1)
+                print('\nA hefty amount of loot spills out on the floor')
+                dining_hall_two.inventory.append(bomb)
+                dining_hall_two.inventory.append(note)
+                dining_hall_two.inventory.append(potion)
+                dining_hall_two.inventory.append(armor)
+            else:
+                print('\nYou do not have the key to the room')
 
 
 # --------------------------------------- Main Game --------------------------
@@ -540,3 +600,6 @@ look around first?""")
 
 
 main()
+# player = Player(input('\nWhat is your name, Hero?\n'), 100, 100, [],
+#                 hands, True, cellar)
+# scene_four_sect_two(player)
