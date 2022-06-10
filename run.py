@@ -124,12 +124,18 @@ class Player(object):
         """
         if self.inventory == []:
             print('\nYou have nothing in your inventory')
+            print(f'\nYour equipped weapon is: {self.equipped.name}')
+            print(f'Your current health is: {self.health}')
+            print(f'Your max health is: {self.max_health}')
         else:
             for item in self.inventory:
                 if isinstance(item, str):
                     print(f'- A {item}')
                 else:
                     print(f'- A {item.name}')
+            print(f'\nYour equipped weapon is: {self.equipped.name}')
+            print(f'Your current health is: {self.health}')
+            print(f'Your max health is: {self.max_health}')
 
     def update_inventory(self, item):
         """
@@ -177,6 +183,7 @@ class Player(object):
                     self.max_health += 50
                     self.inventory.remove(armor)
                     is_in = True
+                    break
                 else:
                     self.equipped = x
                     is_in = True
@@ -200,19 +207,17 @@ class Player(object):
         Heals the player if there is a potion in their inventory
         """
         if potion in self.inventory:
-            if self.health <= 80:
-                self.health += potion.modifier
-                print(f'\nYou have healed for {potion.modifier} points!'
-                      f'Your health is now {self.health}')
+            if self.health < (self.max_health - 40):
+                # Heals for the max amount a potion can
+                self.health += 40
                 self.inventory.remove(potion)
-            elif self.health > 80 and self.health != 100:
-                health_to_add = (100 - self.health)
-                self.health += health_to_add
-                print(f'\nYou have healed for {health_to_add} points!'
-                      f'Your health is now {self.health}')
+            elif self.health > (self.max_health - 40):
+                # To prevent the user going over the max health
+                to_heal = self.max_health - self.health
+                self.health += to_heal
                 self.inventory.remove(potion)
-            elif self.health == self.max_health:
-                print('\nYou are already max health.')
+            else:
+                print('Something borked')
         else:
             print('\nYou do not have a health potion.')
 
@@ -234,27 +239,24 @@ def check_generics(player, choice, room, scene):
     Checks for generic choices the player can do in any scenario/room
     """
     if 'inventory' in choice:
+        os.system('clear')
         player.get_inventory()
         time.sleep(3)
         loop_back(player, scene)
     elif 'look' in choice:
+        os.system('clear')
         room.description()
         room.get_inventory()
         time.sleep(3)
         loop_back(player, scene)
     elif 'pick up' in choice:
-        player.inventory.extend(room.inventory)
-        print('\nYou pick up all the items currently in the room')
-        room.inventory = []
         if room.inventory == []:
             print('\nThere is nothing left in the room')
+        else:
+            player.inventory.extend(room.inventory)
+            print('\nYou pick up all the items currently in the room')
+            room.inventory = []
         loop_back(player, scene)
-        # for item in room.inventory:
-        #     print(room.inventory)
-        #     player.pickup(item, room)
-        #     if room.inventory == []:
-        #         print('There is nothing left in the room')
-        #     loop_back(player, scene)
     elif 'equip' in choice:
         os.system('clear')
         equipment = input('\nWhat item would you like to equip?\n')
@@ -297,8 +299,7 @@ The system will determine if your input is valid and let you do certain
 actions.
 If there is something you cannot do, the system should tell you this.
 Combat is taken in turns with the AI.
-The story is silly and not to be taken seriously, get silly with it!
-                """)
+Refer to the README for a comprehensive list of """)
                 time.sleep(3)
                 print("\nBack to Menu? (Any input)")
                 input('')
@@ -310,7 +311,7 @@ def combat(player, enemy, scene):
     """
     Combat function, does not break until player/ai hp is 0
     """
-    while player.health and enemy.health > 0:
+    while player.health > 0 and enemy.health > 0:
         if player.turn:
             print(f'\nThe {enemy.name} is in front of you. What do you do?')
             user_answer = input('\n').lower()
@@ -345,47 +346,48 @@ def combat(player, enemy, scene):
         player.current_room.remove_item(enemy)  # removes the enemy from
 # room pool
     elif player.health <= 0:
-        print('You have died. Restart.')
+        print('You have died. Restart!')
+        quit()
     else:
         pass
 
 
 # -------------- Object definitions -----------------
 
-hands = Weapon('Hands', 10, 'weapon')
+hands = Weapon('Hands', 5, 'weapon')
 
-torch = Weapon('Torch', 15, 'weapon')
+torch = Weapon('Torch', 10, 'weapon')
 
-sword = Weapon('Sword', 35, 'weapon')
+sword = Weapon('Sword', 20, 'weapon')
 
-axe = Weapon('Axe', 50, 'weapon')
+axe = Weapon('Axe', 45, 'weapon')
 
 excalibur = Weapon('Excalibur', 75, 'weapon')
 
 bomb = Weapon('Bomb', 100, 'weapon')
 
-potion = Item('Health Potion', 35, 'tool')
+potion = Item('Health Potion', 40, 'tool')
 
-armor = Item('Piece of Armor', 50, 'armor')
+armor = Item('Piece of Armor (+50 hp when equipped)', 50, 'armor')
 
 key = Item('Key', 0, 'tool')
 
 note = Item('A note that reads: "Save your bombs for the end"', 0, 'tool')
 
-injured_bandit = Enemy('Injured Bandit', 10, 10, [potion, sword], 'enemy')
+injured_bandit = Enemy('Injured Bandit', 15, 10, [potion], 'enemy')
 
-bandit = Enemy('Bandit', 10, 15, [potion, bomb], 'enemy')
+bandit = Enemy('Bandit', 30, 15, [potion, bomb, sword], 'enemy')
 
-fat_bandit = Enemy('Fat Bandit', 10, 20, [armor], 'enemy')
+fat_bandit = Enemy('Fat Bandit', 50, 20, [armor], 'enemy')
 
-small_ogre = Enemy('Small Ogre', 100, 30, [key, axe, potion, potion], 'enemy')
+small_ogre = Enemy('Small Ogre', 100, 25, [key, axe, potion, potion], 'enemy')
 
 mother_ogre = Enemy('Mother Ogre', 150, 45, [potion, potion, potion, bomb],
                     'enemy')
 
 final_boss = Enemy('Mergo, Guardian of the Rose', 300, 60, [], 'enemy')
 
-cellar = Room('Cellar', [torch, note, potion, bandit, armor], 'small', 1,
+cellar = Room('Cellar', [torch], 'small', 1,
               '\nThe room is dimly lit by something.')
 
 storage = Room('Storage Room', [injured_bandit, potion], 'small', 1,
@@ -404,8 +406,8 @@ dining_hall_one = Room('Dining Hall Entrance', [fat_bandit], 'medium', 2,
                        "The Foyer opens up to reveal a sizeable room,"
                        "seperated seemingly in half by a large curtain.")
 
-dining_hall_two = Room('Dining Hall Backroom', [small_ogre], 'medium',
-                       2, 'The Backroom is host to a sizeable amount'
+dining_hall_two = Room('Dining Hall Kitchen', [small_ogre], 'medium',
+                       2, 'The Kitchen is host to a sizeable amount'
                        'of animal carcasses. Seems something has been feeding'
                        'here.'
                        "There appears to be a stairway to the Castle's main"
@@ -429,15 +431,12 @@ def scene_one(player):
     while (answer == ''):
         answer = input('\n').lower()
         check_generics(player, answer, cellar, scene_one)
-        if answer == 'stay here':
+        if 'stay' in answer:
             print('\nYou patiently wait and die of hunger. Please restart.')
             quit()
-        elif answer == 'open door':
+        elif 'open' in answer:
             os.system('clear')
             scene_two(player)
-        elif 'torch' in answer:
-            player.pickup(torch)
-            scene_one(player)
         else:
             print('\nYou cannot do that.')
             time.sleep(2)
@@ -451,10 +450,11 @@ def scene_two(player):
     print("""\nYou open the door to the storage room.""")
     if injured_bandit in storage.inventory:
         print("""\nAt first, everything seems normal, but suddenly an injured
-        bandit approaches you.
+bandit approaches you.
 'That Rose is mine, Hero, give it 'ere'""")
     else:
         pass
+    time.sleep(1)
     player.current_room = storage
     combat(player, injured_bandit, scene_two)
     print('What do you do?')
@@ -487,6 +487,7 @@ def scene_three(player):
     player.current_room = dungeon
     print("""\nYou enter what seems to be an old torture chamber.
 Partially regretting ever setting out on this mission you step a ways in.""")
+    time.sleep(2)
     if bandit in dungeon.inventory:
         print("\nFrom behind one of the various horrific devices,"
               " a Bandit jumps out and swipes at you."
@@ -506,6 +507,7 @@ What you see at the top seems to be the Dining Hall for castle staff.
 A foul smell fills the air, something has been living here...""")
             scene_four_sect_one(player)
         elif 'board' in answer:
+            os.system('clear')
             print("""\nYou move the board out of the way and step inside.
 It appears to be a room for stashing the various pieces of armor from the
 aforementioned bodies.
@@ -532,15 +534,15 @@ def scene_four_sect_one(player):
     if fat_bandit in dining_hall_one.inventory:
         print("\nA very large bandit sitting at one of the many tables,"
               " looks up from the meal he was eating directly at you."
-              "He still looks hungry.")
+              " He still looks hungry.")
     else:
         pass
-    combat(player, bandit, scene_four_sect_one)
-    print('What will you do?')
+    combat(player, fat_bandit, scene_four_sect_one)
+    print('\nWhat will you do?')
     answer = ''
     while answer == '':
         answer = input('\n').lower()
-        check_generics(player, answer, dungeon, scene_four_sect_one)
+        check_generics(player, answer, dining_hall_one, scene_four_sect_one)
         if 'curtain' in answer:
             scene_four_sect_two(player)
 
@@ -553,15 +555,15 @@ def scene_four_sect_two(player):
     player.current_room = dining_hall_two
     if small_ogre in dining_hall_two.inventory:
         print('\nA small, yet towering Ogre turns from the corner it was'
-              "feeding in. Seems you're it's next meal.")
+              " feeding in. Seems you're it's next meal.")
     else:
         pass
     combat(player, small_ogre, scene_four_sect_two)
-    print('What do you do?')
+    print('\n[Dining Hall Kitchen] What do you do?')
     answer = ''
     while answer == '':
         answer = input('\n').lower()
-        check_generics(player, answer, dungeon, scene_four_sect_one)
+        check_generics(player, answer, dining_hall_two, scene_four_sect_two)
         if 'stairs' in answer:
             quit()
         elif 'door' in answer:
@@ -573,8 +575,10 @@ def scene_four_sect_two(player):
                 dining_hall_two.inventory.append(note)
                 dining_hall_two.inventory.append(potion)
                 dining_hall_two.inventory.append(armor)
+                scene_four_sect_two(player)
             else:
                 print('\nYou do not have the key to the room')
+                scene_four_sect_two(player)
 
 
 # --------------------------------------- Main Game --------------------------
@@ -586,7 +590,7 @@ def main():
     """
     menu()
     os.system('clear')
-    player = Player(input('\nWhat is your name, Hero?\n'), 100, 100, [],
+    player = Player(input('\nWhat is your name, Hero?\n'), 50, 100, [],
                     hands, True, cellar)
     print(f'\nAh, {player.name}, a fine name for a budding adventurer.')
     time.sleep(2)
@@ -600,6 +604,3 @@ look around first?""")
 
 
 main()
-# player = Player(input('\nWhat is your name, Hero?\n'), 100, 100, [],
-#                 hands, True, cellar)
-# scene_four_sect_two(player)
