@@ -491,15 +491,30 @@ A bunch of clothes and broken armor spill out on to the floor.""")
 
 def scene_four_sect_one(player):
     """
-    Scene four, medium room with two sections, side room
+    Scene four, medium room with two sections, 
+    side room not accessible from section one
     """
     player.current_room = dining_hall_one
     if fat_bandit in dining_hall_one.inventory:
         print("A very large bandit sitting at one of the many tables,"
-              " looks up from the meal he was eating directly at you")
+              " looks up from the meal he was eating directly at you."
+              "He still looks hungry.")
     else:
         pass
     combat(player, bandit, scene_four_sect_one)
+    print('What will you do?')
+    answer = ''
+    while (answer == ''):
+        answer = input('\n').lower()
+        check_generics(player, answer, dungeon, scene_three)
+        if 'curtain' in answer:
+
+
+def scene_four_sect_two:
+    """
+    Scene four, medium room with two sections.
+    side room accesible in this section
+    """
 
 
 # --------------------------------------- Main Game --------------------------
