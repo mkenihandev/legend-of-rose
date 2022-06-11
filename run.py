@@ -111,7 +111,8 @@ class Player(object):
     """
 
     def __init__(self, name, health, max_health, inventory,
-                 equipped, turn, current_room, good_person):
+                 equipped, turn, current_room, good_person,
+                 board_used, key_used):
         self.name = name
         self.health = health
         self.inventory = inventory
@@ -120,6 +121,8 @@ class Player(object):
         self.max_health = max_health
         self.current_room = current_room
         self.good_person = good_person
+        self.board_used = board_used
+        self.key_used = key_used
 
     def get_inventory(self):
         """
@@ -382,7 +385,7 @@ excalibur = Weapon('Excalibur', 75, 'weapon')
 
 bomb = Weapon('Bomb', 100, 'weapon')
 
-potion = Item('Health Potion', 40, 'tool')
+potion = Item('Health Potion (+40 hp)', 40, 'tool')
 
 armor = Item('Piece of Armor (+50 hp when equipped)', 50, 'armor')
 
@@ -401,7 +404,7 @@ small_ogre = Enemy('Small Ogre', 100, 25, [key, axe, potion], 'enemy')
 mother_ogre = Enemy('Mother Ogre', 150, 45, [potion, potion, potion, bomb],
                     'enemy')
 
-final_boss = Enemy('Mergo, Guardian of the Rose', 600, 60, [], 'enemy')
+final_boss = Enemy('Guardian of the Rose', 600, 60, [], 'enemy')
 
 cellar = Room('Cellar', [torch], 'small', 1,
               '\nThe room is dimly lit by something.')
@@ -438,7 +441,7 @@ main_hall_one = Room('Main Hall Foyer', [mother_ogre], 'large', 3,
                      ' that leads up to the Throne Room. Something seems to'
                      ' be halfway up the stairs.')
 
-main_hall_two = Room('Main Hall Stairway', [excalibur], 'large', 3,
+main_hall_two = Room('Main Hall Stairway', [], 'large', 3,
                      'Deceivingly high up, you can see the Foyer could have'
                      ' been host to multiple hundreds of people. The Throne'
                      ' Room still awaits you up the rest of the stairs.'
@@ -552,15 +555,19 @@ What you see at the top seems to be the Dining Hall for castle staff.
 A foul smell fills the air, something has been living here...""")
             scene_four_sect_one(player)
         elif 'board' in answer or 'move' in answer:
-            os.system('clear')
-            print("""\nYou move the board out of the way to reveal a broom closet.
-It appears to be a room for stashing the various pieces of armor from the
-aforementioned bodies.
-A bunch of clothes and broken armor spill out on to the floor.""")
-            player.current_room.inventory.append(armor)
-            player.current_room.inventory.append(potion)
-            player.current_room.inventory.append(bomb)
-            scene_three(player)
+            if not player.board_used:
+                os.system('clear')
+                print("""\nYou move the board out of the way to reveal a broom closet.
+    It appears to be a room for stashing the various pieces of armor from the
+    aforementioned bodies.
+    A bunch of clothes and broken armor spill out on to the floor.""")
+                player.current_room.inventory.append(armor)
+                player.current_room.inventory.append(potion)
+                player.current_room.inventory.append(bomb)
+                player.board_used = True
+                scene_three(player)
+            else:
+                print('You already attained the loot behind the board.')
         elif 'back' in answer:
             print('\nYou make your way back to the previous room')
             scene_two(player)
@@ -623,9 +630,11 @@ def scene_four_sect_two(player):
         answer = input('\n').lower()
         check_generics(player, answer, dining_hall_two, scene_four_sect_two)
         if 'stairs' in answer or 'up' in answer:
+            print('You exit the kitchen and climb the stairs.'
+                  'You have reached the main hall.')
             finale_sect_one(player)
         elif 'door' in answer or 'open' in answer:
-            if key in player.inventory:
+            if key in player.inventory and not player.key_used:
                 print('\nYou push and twist the key in to the keyhole...')
                 time.sleep(1)
                 print('\nA hefty amount of loot spills out on the floor')
@@ -633,9 +642,13 @@ def scene_four_sect_two(player):
                 dining_hall_two.inventory.append(note)
                 dining_hall_two.inventory.append(potion)
                 dining_hall_two.inventory.append(armor)
+                player.key_used = True
+                scene_four_sect_two(player)
+            elif not player.key_used:
+                print('\nYou do not have the key to the room')
                 scene_four_sect_two(player)
             else:
-                print('\nYou do not have the key to the room')
+                print('\nYou have already opened the room.')
                 scene_four_sect_two(player)
         elif 'back' in answer:
             print('\nYou make your way back to the previous room')
@@ -666,6 +679,10 @@ def finale_sect_one(player):
         answer = input('\n').lower()
         check_generics(player, answer, main_hall_one, finale_sect_one)
         if 'stairs' in answer or 'up' in answer:
+            print('You begin climbing the gigantic stairs and reach'
+                  ' a midway point. A bonfire, lit, sits in the middle.'
+                  ' The bonfire fully heals you as you sit down.')
+            player.health = player.max_health
             finale_sect_two(player)
         elif 'back' in answer:
             print('\nYou make your way back to the previous room')
@@ -687,13 +704,16 @@ def finale_sect_two(player):
         answer = input('\n').lower()
         check_generics(player, answer, main_hall_two, finale_sect_two)
         if 'stairs' in answer or 'up' in answer:
+            print('You push on and up the rest of the stairs.'
+                  'Your heart beats faster and louder as you know you'
+                  ' are nearing the end. You reach the throne room.')
             finale_sect_three(player)
         elif 'sword' in answer or 'pull' in answer:
             if player.good_person:
                 print('\nThe Sword deems you worthy and releases from the'
                       ' bonfire.'
-                      'Excalibur, the Legendary Sword, is now yours.')
-                player.pickup(excalibur)
+                      ' Excalibur, the Legendary Sword, is now yours.')
+                player.update_inventory(excalibur)
                 finale_sect_two_v2(player)
             else:
                 print('\nThe Sword deems you unworthy and is immovable')
@@ -717,6 +737,9 @@ def finale_sect_two_v2(player):
         answer = input('\n').lower()
         check_generics(player, answer, main_hall_two, finale_sect_two)
         if 'stairs' in answer or 'up' in answer:
+            print('You push on and up the rest of the stairs.'
+                  'Your heart beats faster and louder as you know you'
+                  ' are nearing the end. You reach the throne room.')
             finale_sect_three(player)
         elif 'back' in answer:
             print('\nYou make your way back to the previous room')
@@ -732,13 +755,13 @@ def finale_sect_three(player):
     Finale, main hall throne room, last boss and win condition
     """
     player.current_room = main_hall_three
-    print('Something is not right. The Rose sits out in the open in front'
+    print('\nSomething is not right. The Rose sits out in the open in front'
           ' of the Throne, ripe for the taking.')
     time.sleep(2)
-    print('Just as you suspected, a mysterious figure walks out from'
+    print('\nJust as you suspected, a mysterious figure walks out from'
           ' behind one of the pillars, slowly clapping...')
     time.sleep(1)
-    print(f'"Well done, {player.name}, I truly did not think you'
+    print(f'"\nWell done, {player.name}, I truly did not think you'
           ' would make it this far. However I,'
           ' Mergo, Guardian of the Rose cannot allow you to live.'
           'Goodbye."')
@@ -746,7 +769,8 @@ def finale_sect_three(player):
     combat(player, final_boss, finale_sect_three)
     print('\nCongratulations! You have attained the Legendary Rose,'
           ' and defeated the evil Mergo.'
-          f'Be proud, {player.name}, and give that Rose to someone worthy.')
+          f' Be proud, {player.name}, and give that Rose to someone worthy.')
+    quit()
 
 
 # --------------------------------------- Main Game --------------------------
@@ -759,7 +783,7 @@ def main():
     menu()
     os.system('clear')
     player = Player(input('\nWhat is your name, Hero?\n'), 100, 100, [],
-                    hands, True, cellar, True)
+                    hands, True, cellar, True, False, False)
     print(f'\nAh, {player.name}, a fine name for a budding adventurer.')
     print(f'\nAre you a good person, {player.name}? Y/N')
     good = ''
