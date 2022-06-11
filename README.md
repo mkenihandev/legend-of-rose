@@ -41,6 +41,8 @@ If you are stuck in a room, try looking around, and then performing an action co
 - "You see a broken wall"
 - Try: "Break wall" and you might be taken to the next scenario.
 
+Bombs are a weapon and must be equipped first to use them. Armor must be equipped to benefit from the +50 to your max health.
+
 ## Initial Goals and Designs
 <hr>
 

@@ -111,7 +111,7 @@ class Player(object):
     """
 
     def __init__(self, name, health, max_health, inventory,
-                 equipped, turn, current_room):
+                 equipped, turn, current_room, good_person):
         self.name = name
         self.health = health
         self.inventory = inventory
@@ -119,6 +119,7 @@ class Player(object):
         self.turn = turn
         self.max_health = max_health
         self.current_room = current_room
+        self.good_person = good_person
 
     def get_inventory(self):
         """
@@ -151,12 +152,22 @@ class Player(object):
         equipped weapon value
         """
         if target.health > 0:
-            print(f'\nYou attack the {target.name} '
-                  f'with your {self.equipped.name}')
-            target.health -= self.equipped.attack()
-            time.sleep(1)
-            print(f"\nYou deal {self.equipped.damage} "
-                  f"damage to the {target.name}")
+            if self.equipped == bomb:
+                print(f'\nYou attack the {target.name} '
+                      f'with your {self.equipped.name}')
+                target.health -= self.equipped.attack()
+                time.sleep(1)
+                print(f"\nYou deal {self.equipped.damage} "
+                      f"damage to the {target.name}")
+                self.inventory.remove(bomb)
+                self.equipped = hands
+            else:
+                print(f'\nYou attack the {target.name} '
+                      f'with your {self.equipped.name}')
+                target.health -= self.equipped.attack()
+                time.sleep(1)
+                print(f"\nYou deal {self.equipped.damage} "
+                      f"damage to the {target.name}")
         else:
             print(f"\nStop!!! {target.name}'s already dead 😭")
 
@@ -209,15 +220,19 @@ class Player(object):
         Heals the player if there is a potion in their inventory
         """
         if potion in self.inventory:
-            if self.health < (self.max_health - 40):
+            if self.health <= (self.max_health - 40):
                 # Heals for the max amount a potion can
+                print('\nYou drink a potion, it tastes bitter.')
                 self.health += 40
                 self.inventory.remove(potion)
+                print(f'\nYour health is now {self.health}')
             elif self.health > (self.max_health - 40):
                 # To prevent the user going over the max health
+                print('\nYou drink a potion, it tastes bitter.')
                 to_heal = self.max_health - self.health
                 self.health += to_heal
                 self.inventory.remove(potion)
+                print(f'\nYour health is now {self.health}')
             else:
                 print('Something borked')
         else:
@@ -240,18 +255,18 @@ def check_generics(player, choice, room, scene):
     """
     Checks for generic choices the player can do in any scenario/room
     """
-    if 'inventory' in choice:
+    if 'inventory' in choice or 'backpack' in choice:
         os.system('clear')
         player.get_inventory()
-        time.sleep(3)
+        time.sleep(2)
         loop_back(player, scene)
-    elif 'look' in choice:
+    elif 'look' in choice or 'search' in choice or 'survey' in choice:
         os.system('clear')
         room.description()
         room.get_inventory()
-        time.sleep(3)
+        time.sleep(2)
         loop_back(player, scene)
-    elif 'pick up' in choice:
+    elif 'pick' in choice or 'loot' in choice or 'grab' in choice:
         if room.inventory == []:
             print('\nThere is nothing left in the room')
         else:
@@ -259,7 +274,7 @@ def check_generics(player, choice, room, scene):
             print('\nYou pick up all the items currently in the room')
             room.inventory = []
         loop_back(player, scene)
-    elif 'equip' in choice:
+    elif 'equip' in choice or 'hold' in choice:
         os.system('clear')
         equipment = input('\nWhat item would you like to equip?\n')
         player.equip(equipment)
@@ -322,11 +337,11 @@ def combat(player, enemy, scene):
 
             check_generics(player, user_answer, player.current_room, scene)
 
-            if 'attack' in user_answer:
+            if 'attack' in user_answer or 'hit' in user_answer:
                 player.attack(enemy)
                 print(f'\n{enemy.name} health is now {enemy.health}')
                 player.turn = False
-            elif 'heal' in user_answer:
+            elif 'heal' in user_answer or 'potion' in user_answer:
                 player.heal()
         else:
             damage = enemy.damage
@@ -383,10 +398,10 @@ fat_bandit = Enemy('Fat Bandit', 50, 20, [armor], 'enemy')
 
 small_ogre = Enemy('Small Ogre', 100, 25, [key, axe, potion], 'enemy')
 
-mother_ogre = Enemy('Mother Ogre', 150, 45, [potion, potion, bomb],
+mother_ogre = Enemy('Mother Ogre', 150, 45, [potion, potion, potion, bomb],
                     'enemy')
 
-final_boss = Enemy('Mergo, Guardian of the Rose', 300, 60, [], 'enemy')
+final_boss = Enemy('Mergo, Guardian of the Rose', 600, 60, [], 'enemy')
 
 cellar = Room('Cellar', [torch], 'small', 1,
               '\nThe room is dimly lit by something.')
@@ -409,12 +424,38 @@ dining_hall_one = Room('Dining Hall Entrance', [fat_bandit], 'medium', 2,
 
 dining_hall_two = Room('Dining Hall Kitchen', [small_ogre], 'medium',
                        2, 'The Kitchen is host to a sizeable amount'
-                       'of animal carcasses. Seems something has been feeding'
-                       'here.'
+                       ' of animal carcasses. Seems something has been feeding'
+                       ' here.'
                        "There appears to be a stairway to the Castle's main"
-                       "hall at the back of the room... but to the side a"
-                       "door. It appears to be locked."
+                       " hall at the back of the room... but to the side a"
+                       " door. It appears to be locked."
                        "Perhaps if you had a key?")
+
+main_hall_one = Room('Main Hall Foyer', [mother_ogre], 'large', 3,
+                     'The Foyer of the Main Hall is lined with corpses of'
+                     ' heroes and bandits alike.'
+                     'The Foyer appears to have a gigantic stairway,'
+                     ' that leads up to the Throne Room. Something seems to'
+                     ' be halfway up the stairs.')
+
+main_hall_two = Room('Main Hall Stairway', [excalibur], 'large', 3,
+                     'Deceivingly high up, you can see the Foyer could have'
+                     ' been host to multiple hundreds of people. The Throne'
+                     ' Room still awaits you up the rest of the stairs.'
+                     'There is a bonfire lit here, with an odd sword stuck'
+                     ' in it. The bonfire makes you feel safe.')
+
+main_hall_two_v2 = Room('Main Hall Stairway', [], 'large', 3,
+                        'Deceivingly high up, you can see the Foyer could have'
+                        ' been host to multiple hundreds of people. The Throne'
+                        ' Room still awaits you up the rest of the stairs.'
+                        'There is a bonfire lit here, the legendary sword now'
+                        ' missing from it. The bonfire makes you feel safe.')
+
+main_hall_three = Room('Throne Room', [final_boss], 'large', 3,
+                       'The Throne Room has a sinister aura. You can see the'
+                       ' Rose sitting just out of reach. Your quests end'
+                       ' draws near')
 
 # ------------------------ Main Game Scenarios ----------------
 
@@ -425,8 +466,8 @@ def scene_one(player):
     """
     player.current_room = cellar
     print("""
-    What do you do?
-    (E.g. Look around/Open Door/Inventory)
+[Cellar] What do you do?
+(E.g. Look around/Open Door/Inventory)
     """)
     answer = ''
     while answer == '':
@@ -435,13 +476,16 @@ def scene_one(player):
         if 'stay' in answer:
             print('\nYou patiently wait and die of hunger. Please restart.')
             quit()
-        elif 'open' in answer:
+        elif 'open' in answer or 'door' in answer or 'forward' in answer:
             os.system('clear')
             scene_two(player)
         else:
             print('\nYou cannot do that.')
             time.sleep(2)
             scene_one(player)
+
+
+# ------------------------ Scene Two ----------------
 
 
 def scene_two(player):
@@ -458,13 +502,13 @@ bandit approaches you.
     time.sleep(1)
     player.current_room = storage
     combat(player, injured_bandit, scene_two)
-    print('What do you do?')
+    print('\n[Storage Room] What do you do?')
     answer = ''
     while answer == '':
         answer = input('\n').lower()
         check_generics(player, answer, storage, scene_two)  # Add picking up
         # ability
-        if 'wall' in answer:
+        if 'wall' in answer or 'break' in answer:
             print("""\nYou break down the fragile wall to reveal a
 passage to a large dungeon.
 You get the eery feeling you're in for it now.""")
@@ -472,13 +516,13 @@ You get the eery feeling you're in for it now.""")
         elif 'back' in answer:
             print('You make your way back to the previous room')
             scene_one(player)
-        elif 'potion' in answer:
-            player.pickup(potion)
-            scene_two(player)
         else:
             print('\nYou cannot do that.')
             time.sleep(2)
             scene_two(player)
+
+
+# ------------------------ Scene Three ----------------
 
 
 def scene_three(player):
@@ -497,19 +541,19 @@ Partially regretting ever setting out on this mission you step a ways in.""")
     else:
         pass
     combat(player, bandit, scene_three)
-    print('\nWhat will you do?')
+    print('\n[Dungeon] What will you do?')
     answer = ''
     while answer == '':
         answer = input('\n').lower()
         check_generics(player, answer, dungeon, scene_three)
-        if 'stairs' in answer:
+        if 'stairs' in answer or 'up' in answer:
             print("""\nYou approach the stairs and climb it step by step.
 What you see at the top seems to be the Dining Hall for castle staff.
 A foul smell fills the air, something has been living here...""")
             scene_four_sect_one(player)
-        elif 'board' in answer:
+        elif 'board' in answer or 'move' in answer:
             os.system('clear')
-            print("""\nYou move the board out of the way and step inside.
+            print("""\nYou move the board out of the way to reveal a broom closet.
 It appears to be a room for stashing the various pieces of armor from the
 aforementioned bodies.
 A bunch of clothes and broken armor spill out on to the floor.""")
@@ -526,6 +570,9 @@ A bunch of clothes and broken armor spill out on to the floor.""")
             scene_three(player)
 
 
+# ------------------------ Scene Four ----------------
+
+
 def scene_four_sect_one(player):
     """
     Scene four, medium room with two sections,
@@ -539,13 +586,23 @@ def scene_four_sect_one(player):
     else:
         pass
     combat(player, fat_bandit, scene_four_sect_one)
-    print('\nWhat will you do?')
+    print('\n[Dining Hall] What will you do?')
     answer = ''
     while answer == '':
         answer = input('\n').lower()
         check_generics(player, answer, dining_hall_one, scene_four_sect_one)
-        if 'curtain' in answer:
+        if 'curtain' in answer or 'draw' in answer or 'move':
+            print('You draw the curtain back to reveal the kitchen.'
+                  'Rotten food in various states of eaten is littered'
+                  ' just about everywhere.')
             scene_four_sect_two(player)
+        elif 'back' in answer:
+            print('\nYou make your way back to the previous room')
+            scene_three(player)
+        else:
+            print('\nYou cannot do that.')
+            time.sleep(2)
+            scene_four_sect_one(player)
 
 
 def scene_four_sect_two(player):
@@ -565,9 +622,9 @@ def scene_four_sect_two(player):
     while answer == '':
         answer = input('\n').lower()
         check_generics(player, answer, dining_hall_two, scene_four_sect_two)
-        if 'stairs' in answer:
-            quit()
-        elif 'door' in answer:
+        if 'stairs' in answer or 'up' in answer:
+            finale_sect_one(player)
+        elif 'door' in answer or 'open' in answer:
             if key in player.inventory:
                 print('\nYou push and twist the key in to the keyhole...')
                 time.sleep(1)
@@ -580,6 +637,116 @@ def scene_four_sect_two(player):
             else:
                 print('\nYou do not have the key to the room')
                 scene_four_sect_two(player)
+        elif 'back' in answer:
+            print('\nYou make your way back to the previous room')
+            scene_four_sect_one(player)
+        else:
+            print('\nYou cannot do that.')
+            time.sleep(2)
+            scene_four_sect_two(player)
+
+
+# ------------------------ Finale ----------------
+
+
+def finale_sect_one(player):
+    """
+    Finale, main hall foyer, large room with 3 sections
+    """
+    player.current_room = main_hall_one
+    if mother_ogre in main_hall_one.inventory:
+        print('\nAn absolutely gigantic Ogre stands tall in the middle'
+              ' of the room. It seems it heard you murder its child. Woops.')
+    else:
+        pass
+    combat(player, mother_ogre, finale_sect_one)
+    print('\n[Main Hall Foyer] What do you do?')
+    answer = ''
+    while answer == '':
+        answer = input('\n').lower()
+        check_generics(player, answer, main_hall_one, finale_sect_one)
+        if 'stairs' in answer or 'up' in answer:
+            finale_sect_two(player)
+        elif 'back' in answer:
+            print('\nYou make your way back to the previous room')
+            scene_four_sect_two(player)
+        else:
+            print('\nYou cannot do that.')
+            time.sleep(2)
+            finale_sect_one(player)
+
+
+def finale_sect_two(player):
+    """
+    Finale, main hall stairs, large room with 3 sections
+    """
+    player.current_room = main_hall_two
+    print('\n[Main Hall Stairs] What do you do?')
+    answer = ''
+    while answer == '':
+        answer = input('\n').lower()
+        check_generics(player, answer, main_hall_two, finale_sect_two)
+        if 'stairs' in answer or 'up' in answer:
+            finale_sect_three(player)
+        elif 'sword' in answer or 'pull' in answer:
+            if player.good_person:
+                print('\nThe Sword deems you worthy and releases from the'
+                      ' bonfire.'
+                      'Excalibur, the Legendary Sword, is now yours.')
+                player.pickup(excalibur)
+                finale_sect_two_v2(player)
+            else:
+                print('\nThe Sword deems you unworthy and is immovable')
+        elif 'back' in answer:
+            print('\nYou make your way back to the previous room')
+            finale_sect_one(player)
+        else:
+            print('\nYou cannot do that.')
+            time.sleep(2)
+            finale_sect_two(player)
+
+
+def finale_sect_two_v2(player):
+    """
+    Finale, main hall stairs with no excalibur, large room with 3 sections
+    """
+    player.current_room = main_hall_two_v2
+    print('\n[Main Hall Stairs] What do you do?')
+    answer = ''
+    while answer == '':
+        answer = input('\n').lower()
+        check_generics(player, answer, main_hall_two, finale_sect_two)
+        if 'stairs' in answer or 'up' in answer:
+            finale_sect_three(player)
+        elif 'back' in answer:
+            print('\nYou make your way back to the previous room')
+            finale_sect_one(player)
+        else:
+            print('\nYou cannot do that.')
+            time.sleep(2)
+            finale_sect_two_v2(player)
+
+
+def finale_sect_three(player):
+    """
+    Finale, main hall throne room, last boss and win condition
+    """
+    player.current_room = main_hall_three
+    print('Something is not right. The Rose sits out in the open in front'
+          ' of the Throne, ripe for the taking.')
+    time.sleep(2)
+    print('Just as you suspected, a mysterious figure walks out from'
+          ' behind one of the pillars, slowly clapping...')
+    time.sleep(1)
+    print(f'"Well done, {player.name}, I truly did not think you'
+          ' would make it this far. However I,'
+          ' Mergo, Guardian of the Rose cannot allow you to live.'
+          'Goodbye."')
+    time.sleep(2)
+    combat(player, final_boss, finale_sect_three)
+    print('\nCongratulations! You have attained the Legendary Rose,'
+          ' and defeated the evil Mergo.'
+          f'Be proud, {player.name}, and give that Rose to someone worthy.')
 
 
 # --------------------------------------- Main Game --------------------------
@@ -591,10 +758,17 @@ def main():
     """
     menu()
     os.system('clear')
-    player = Player(input('\nWhat is your name, Hero?\n'), 50, 100, [],
-                    hands, True, cellar)
+    player = Player(input('\nWhat is your name, Hero?\n'), 100, 100, [],
+                    hands, True, cellar, True)
     print(f'\nAh, {player.name}, a fine name for a budding adventurer.')
-    print(f'\nAre you a good person, {player.name}?')
+    print(f'\nAre you a good person, {player.name}? Y/N')
+    good = ''
+    while good == '':
+        good = input('\n').lower()
+        if 'n' in good:
+            player.good_person = False
+        else:
+            pass
     time.sleep(2)
     print("""\nYou find yourself in a dimly lit cellar.
 You have been told this cellar leads to a secret passage
