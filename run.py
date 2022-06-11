@@ -631,7 +631,7 @@ def scene_four_sect_two(player):
         check_generics(player, answer, dining_hall_two, scene_four_sect_two)
         if 'stairs' in answer or 'up' in answer:
             print('You exit the kitchen and climb the stairs.'
-                  'You have reached the main hall.')
+                  ' You have reached the main hall.')
             finale_sect_one(player)
         elif 'door' in answer or 'open' in answer:
             if key in player.inventory and not player.key_used:
@@ -705,7 +705,7 @@ def finale_sect_two(player):
         check_generics(player, answer, main_hall_two, finale_sect_two)
         if 'stairs' in answer or 'up' in answer:
             print('You push on and up the rest of the stairs.'
-                  'Your heart beats faster and louder as you know you'
+                  ' Your heart beats faster and louder as you know you'
                   ' are nearing the end. You reach the throne room.')
             finale_sect_three(player)
         elif 'sword' in answer or 'pull' in answer:
@@ -738,7 +738,7 @@ def finale_sect_two_v2(player):
         check_generics(player, answer, main_hall_two, finale_sect_two)
         if 'stairs' in answer or 'up' in answer:
             print('You push on and up the rest of the stairs.'
-                  'Your heart beats faster and louder as you know you'
+                  ' Your heart beats faster and louder as you know you'
                   ' are nearing the end. You reach the throne room.')
             finale_sect_three(player)
         elif 'back' in answer:
